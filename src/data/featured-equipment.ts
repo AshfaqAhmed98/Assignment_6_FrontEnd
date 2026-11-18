@@ -8,6 +8,24 @@ export type FeaturedEquipment = {
   description: string;
 };
 
+export function isFeaturedEquipment(value: unknown): value is FeaturedEquipment {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.id === "string" &&
+    typeof item.name === "string" &&
+    typeof item.category === "string" &&
+    typeof item.location === "string" &&
+    typeof item.dailyRate === "number" &&
+    typeof item.image === "string" &&
+    typeof item.description === "string"
+  );
+}
+
 export const featuredEquipment: FeaturedEquipment[] = [
   {
     id: "professional-drill-kit",
