@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
+  featuredEquipment,
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
 } from "@/data/featured-equipment";
@@ -37,6 +39,7 @@ const apiBaseUrl = (
 
 export function FeaturedEquipment() {
   const router = useRouter();
+  const reduceMotion = useReducedMotion() ?? false;
   const [state, setState] = useState<FeaturedEquipmentState>({
     status: "loading",
     items: [],
@@ -45,6 +48,21 @@ export function FeaturedEquipment() {
     null,
   );
   const [navigationError, setNavigationError] = useState<string | null>(null);
+  const [activeEquipmentId, setActiveEquipmentId] = useState<string | null>(
+    null,
+  );
+  const isShowingDemoItems =
+    state.status === "success" && state.items.length === 0;
+  const displayedItems =
+    state.status === "success"
+      ? isShowingDemoItems
+        ? featuredEquipment
+        : state.items
+      : [];
+  const equipmentRows: FeaturedEquipmentItem[][] = [];
+  for (let index = 0; index < displayedItems.length; index += 3) {
+    equipmentRows.push(displayedItems.slice(index, index + 3));
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -158,7 +176,16 @@ export function FeaturedEquipment() {
   return (
     <section className="bg-[#f7f8fa] px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-10 flex items-end justify-between gap-6">
+        <motion.div
+          className="mb-10 flex items-end justify-between gap-6"
+          initial={{ opacity: 0, y: reduceMotion ? 0 : -18 }}
+          transition={{
+            duration: reduceMotion ? 0 : 0.45,
+            ease: "easeOut",
+          }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+        >
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#e96a32]">
               Approved and ready
@@ -174,7 +201,7 @@ export function FeaturedEquipment() {
             View all equipment
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
-        </div>
+        </motion.div>
 
         {navigationError && (
           <p
@@ -199,63 +226,142 @@ export function FeaturedEquipment() {
             {state.message}
           </p>
         )}
-        {state.status === "success" && state.items.length === 0 && (
-          <p className="py-12 text-center text-slate-600">
-            No approved equipment is available right now.
+        {isShowingDemoItems && (
+          <p
+            aria-live="polite"
+            className="mb-5 rounded-lg border border-[#ffd277] bg-[#fff8e7] px-4 py-3 text-center text-sm text-slate-700"
+            role="status"
+          >
+            Demo preview: sample listings are shown because no approved
+            equipment is available yet.
           </p>
         )}
-        {state.status === "success" && state.items.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {state.items.map((item) => (
-              <article
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#e96a32]/40 hover:shadow-xl"
-                key={item.id}
+        {displayedItems.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
+            {equipmentRows.map((row, rowIndex) => (
+              <div
+                className="contents sm:flex sm:basis-full sm:gap-5 xl:contents"
+                key={rowIndex}
               >
-                <div className="relative h-52 overflow-hidden">
-                  <Image
-                    alt={item.name}
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    src={item.image}
-                  />
-                  <span className="absolute left-4 top-4 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
-                    {item.category}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-slate-950">
-                    {item.name}
-                  </h3>
-                  <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
-                    <MapPin
-                      aria-hidden="true"
-                      className="size-4 text-[#e96a32]"
-                    />
-                    {item.location}
-                  </p>
-                  <div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-100 pt-4">
-                    <p className="text-sm text-slate-500">
-                      <span className="text-lg font-extrabold text-slate-950">
-                        ৳{item.dailyRate.toLocaleString()}
-                      </span>
-                      <span className="ml-1">/ day</span>
-                    </p>
-                    <button
-                      aria-busy={openingEquipmentId === item.id}
-                      className="inline-flex h-10 items-center gap-2 rounded-md border border-[#e96a32] px-4 text-sm font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white disabled:cursor-wait disabled:opacity-60"
-                      disabled={openingEquipmentId !== null}
-                      onClick={() => void viewDetails(item.id)}
-                      type="button"
+                {row.map((item, itemIndex) => {
+                  const index = rowIndex * 3 + itemIndex;
+
+                  return (
+                    <motion.article
+                      className={`group relative h-[330px] min-w-0 flex-[1_1_0%] rounded-2xl bg-[linear-gradient(115deg,#ffd277_0%,#e96a32_55%,#08162d_100%)] p-[2px] shadow-[0_4px_14px_rgba(8,22,45,0.12)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(233,106,50,0.16)] sm:h-[360px] xl:h-[380px] ${
+                        activeEquipmentId === item.id ? "col-span-2" : ""
+                      }`}
+                      initial={{ opacity: 0, y: reduceMotion ? 0 : -24 }}
+                      key={item.id}
+                      layout
+                      onBlurCapture={(event) => {
+                        const nextTarget = event.relatedTarget;
+                        if (
+                          !(nextTarget instanceof Node) ||
+                          !event.currentTarget.contains(nextTarget)
+                        ) {
+                          setActiveEquipmentId(null);
+                        }
+                      }}
+                      onFocusCapture={() => setActiveEquipmentId(item.id)}
+                      onMouseEnter={() => setActiveEquipmentId(item.id)}
+                      onPointerDown={(event) => {
+                        if (event.pointerType === "touch") {
+                          setActiveEquipmentId(item.id);
+                        }
+                      }}
+                      onPointerLeave={(event) => {
+                        if (event.pointerType !== "touch") {
+                          setActiveEquipmentId(null);
+                        }
+                      }}
+                      style={{
+                        flexGrow: activeEquipmentId === item.id ? 2.2 : 1,
+                      }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : {
+                              layout: {
+                                type: "spring",
+                                stiffness: 140,
+                                damping: 24,
+                                mass: 0.9,
+                              },
+                              opacity: {
+                                duration: 0.45,
+                                delay: index * 0.07,
+                              },
+                              y: {
+                                type: "spring",
+                                stiffness: 180,
+                                damping: 22,
+                                delay: index * 0.07,
+                              },
+                            }
+                      }
+                      viewport={{ once: true, amount: 0.15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                     >
-                      {openingEquipmentId === item.id
-                        ? "Checking..."
-                        : "View Details"}
-                      <ArrowRight aria-hidden="true" className="size-4" />
-                    </button>
-                  </div>
-                </div>
-              </article>
+                      <div className="h-full overflow-hidden rounded-[14px] bg-white">
+                        <div className="relative h-36 overflow-hidden sm:h-44 xl:h-52">
+                          <Image
+                            alt={item.name}
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            fill
+                            sizes="(max-width: 640px) 85vw, 360px"
+                            src={item.image}
+                          />
+                          <span className="absolute left-2 top-2 max-w-[80%] truncate rounded-full bg-slate-950/80 px-2 py-1 text-[10px] font-bold text-white backdrop-blur">
+                            {item.category}
+                          </span>
+                        </div>
+                        <div className="p-3 xl:p-2">
+                          <h3 className="break-words text-base font-bold leading-tight text-slate-950 transition-colors duration-500 group-hover:text-[#c94f1c] xl:text-sm">
+                            {item.name}
+                          </h3>
+                          <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                            <MapPin
+                              aria-hidden="true"
+                              className="size-3 shrink-0 text-[#e96a32]"
+                            />
+                            {item.location}
+                          </p>
+                          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 xl:mt-3 xl:items-start">
+                            <p className="text-sm text-slate-500">
+                              <span className="text-base font-extrabold text-slate-950">
+                                ৳{item.dailyRate.toLocaleString()}
+                              </span>
+                              <span className="ml-1 text-xs">/ day</span>
+                            </p>
+                            {isShowingDemoItems ? (
+                              <span className="rounded-md border border-[#ffd277] bg-[#fff8e7] px-2 py-1.5 text-xs font-bold text-[#7a4b00]">
+                                Demo listing
+                              </span>
+                            ) : (
+                              <button
+                                aria-busy={openingEquipmentId === item.id}
+                                className="inline-flex h-9 items-center gap-1 rounded-md border border-[#e96a32] px-2 text-xs font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white disabled:cursor-wait disabled:opacity-60"
+                                disabled={openingEquipmentId !== null}
+                                onClick={() => void viewDetails(item.id)}
+                                type="button"
+                              >
+                                {openingEquipmentId === item.id
+                                  ? "Checking..."
+                                  : "View Details"}
+                                <ArrowRight
+                                  aria-hidden="true"
+                                  className="size-3.5"
+                                />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.article>
+                  );
+                })}
+              </div>
             ))}
           </div>
         )}
