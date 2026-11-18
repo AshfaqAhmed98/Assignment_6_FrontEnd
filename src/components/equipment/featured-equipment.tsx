@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
 import {
   isFeaturedEquipment,
@@ -14,15 +15,36 @@ type FeaturedEquipmentState =
   | { status: "error"; items: FeaturedEquipmentItem[]; message: string }
   | { status: "success"; items: FeaturedEquipmentItem[] };
 
+type SessionResponse = {
+  session: object | null;
+  user: object | null;
+};
+
+function isSessionResponse(value: unknown): value is SessionResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "session" in value &&
+    "user" in value &&
+    (value.session === null || typeof value.session === "object") &&
+    (value.user === null || typeof value.user === "object")
+  );
+}
+
 const apiBaseUrl = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 ).replace(/\/$/, "");
 
 export function FeaturedEquipment() {
+  const router = useRouter();
   const [state, setState] = useState<FeaturedEquipmentState>({
     status: "loading",
     items: [],
   });
+  const [openingEquipmentId, setOpeningEquipmentId] = useState<string | null>(
+    null,
+  );
+  const [navigationError, setNavigationError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -31,7 +53,9 @@ export function FeaturedEquipment() {
       try {
         const response = await fetch(
           `${apiBaseUrl}/api/equipment/featured`,
-          { signal: controller.signal },
+          {
+            signal: controller.signal,
+          },
         );
         const payload: unknown = await response.json();
 
@@ -78,8 +102,57 @@ export function FeaturedEquipment() {
     return () => controller.abort();
   }, []);
 
-  function viewDetails(id: string) {
-    return `/login?redirect=${encodeURIComponent(`/equipment/${id}`)}`;
+  async function viewDetails(id: string) {
+    setNavigationError(null);
+    setOpeningEquipmentId(id);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/auth/get-session`, {
+        credentials: "include",
+      });
+      let payload: unknown;
+
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error("The authentication server returned an invalid session.");
+      }
+
+      if (!response.ok) {
+        const message =
+          typeof payload === "object" &&
+          payload !== null &&
+          "message" in payload &&
+          typeof payload.message === "string"
+            ? payload.message
+            : "Could not check your sign-in status. Please try again.";
+        throw new Error(message);
+      }
+
+      if (payload !== null && !isSessionResponse(payload)) {
+        throw new Error("The authentication server returned an invalid session.");
+      }
+
+      const isLoggedIn =
+        payload !== null &&
+        payload.session !== null &&
+        payload.user !== null;
+      const detailsUrl = `/equipment/${encodeURIComponent(id)}`;
+
+      router.push(
+        isLoggedIn
+          ? detailsUrl
+          : `/login?redirect=${encodeURIComponent(detailsUrl)}`,
+      );
+    } catch (error) {
+      setNavigationError(
+        error instanceof Error
+          ? error.message
+          : "Could not check your sign-in status. Please try again.",
+      );
+    } finally {
+      setOpeningEquipmentId(null);
+    }
   }
 
   return (
@@ -102,6 +175,16 @@ export function FeaturedEquipment() {
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
+
+        {navigationError && (
+          <p
+            aria-live="assertive"
+            className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-800"
+            role="alert"
+          >
+            {navigationError}
+          </p>
+        )}
 
         {state.status === "loading" && (
           <p aria-live="polite" className="py-12 text-center text-slate-600">
@@ -158,13 +241,18 @@ export function FeaturedEquipment() {
                       </span>
                       <span className="ml-1">/ day</span>
                     </p>
-                    <Link
-                      className="inline-flex h-10 items-center gap-2 rounded-md border border-[#e96a32] px-4 text-sm font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white"
-                      href={viewDetails(item.id)}
+                    <button
+                      aria-busy={openingEquipmentId === item.id}
+                      className="inline-flex h-10 items-center gap-2 rounded-md border border-[#e96a32] px-4 text-sm font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white disabled:cursor-wait disabled:opacity-60"
+                      disabled={openingEquipmentId !== null}
+                      onClick={() => void viewDetails(item.id)}
+                      type="button"
                     >
-                      View Details
+                      {openingEquipmentId === item.id
+                        ? "Checking..."
+                        : "View Details"}
                       <ArrowRight aria-hidden="true" className="size-4" />
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </article>

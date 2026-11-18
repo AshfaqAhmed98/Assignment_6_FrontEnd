@@ -3,13 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Check,
   CircleCheck,
+  Cog,
   Eye,
   EyeOff,
   FileImage,
+  Home,
+  Info,
   Link2,
   LockKeyhole,
   Mail,
@@ -17,9 +21,10 @@ import {
   UploadCloud,
   UserRound,
 } from "lucide-react";
+import { requestAuthAccessToken } from "@/lib/auth-token";
 
 type RegistrationNotice = {
-  type: "success" | "error";
+  type: "success" | "error" | "info";
   message: string;
 };
 
@@ -36,6 +41,7 @@ function isValidPassword(password: string) {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [playBackgroundVideo, setPlayBackgroundVideo] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,8 +51,8 @@ export default function RegisterPage() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [notice, setNotice] = useState<RegistrationNotice | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState<RegistrationNotice | null>(null);
 
   useEffect(() => {
     const motionPreference = window.matchMedia(
@@ -145,14 +151,26 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
+      const response = await fetch(`${apiBaseUrl}/api/auth/sign-up/email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, photo, password }),
+        credentials: "include",
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          image: photo.trim(),
+        }),
       });
-      const payload: unknown = await response.json();
+
+      let payload: unknown;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error("The authentication server returned an invalid response.");
+      }
 
       if (!response.ok) {
         const message =
@@ -161,27 +179,40 @@ export default function RegisterPage() {
           "message" in payload &&
           typeof payload.message === "string"
             ? payload.message
-            : "Registration failed. Please try again.";
+            : "Could not create your account. Please try again.";
         throw new Error(message);
       }
 
-      setName("");
-      setEmail("");
-      setPhoto("");
-      setPhotoFile(null);
-      setPhotoMode("url");
-      setPassword("");
-      setNotice({
-        type: "success",
-        message: "Your GearRent account is ready. Welcome aboard!",
-      });
+      if (
+        typeof payload !== "object" ||
+        payload === null ||
+        !("user" in payload) ||
+        typeof payload.user !== "object" ||
+        payload.user === null
+      ) {
+        throw new Error("The authentication server returned an invalid account.");
+      }
+
+      try {
+        await requestAuthAccessToken(apiBaseUrl);
+      } catch (error) {
+        setNotice({
+          type: "error",
+          message: `Your account was created, but an access token could not be issued. ${
+            error instanceof Error ? error.message : "Please sign in again."
+          }`,
+        });
+        return;
+      }
+
+      router.push("/");
     } catch (error) {
       setNotice({
         type: "error",
         message:
           error instanceof Error
             ? error.message
-            : "Could not connect to the registration service.",
+            : "Could not connect to the authentication service.",
       });
     } finally {
       setIsSubmitting(false);
@@ -202,13 +233,17 @@ export default function RegisterPage() {
           className={`fixed right-4 top-4 z-50 flex max-w-sm items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-xl ${
             notice.type === "success"
               ? "border-emerald-200 bg-white text-emerald-900"
-              : "border-red-200 bg-white text-red-900"
+              : notice.type === "info"
+                ? "border-sky-200 bg-white text-sky-900"
+                : "border-red-200 bg-white text-red-900"
           }`}
           role={notice.type === "error" ? "alert" : "status"}
         >
           <span className="mt-0.5">
             {notice.type === "success" ? (
               <CircleCheck aria-hidden="true" className="size-5" />
+            ) : notice.type === "info" ? (
+              <Info aria-hidden="true" className="size-5" />
             ) : (
               <Sparkles aria-hidden="true" className="size-5" />
             )}
@@ -225,7 +260,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-[1.02fr_0.98fr]">
+      <div className="grid min-h-screen lg:grid-cols-[1.02fr_0.98fr]">
         <section className="relative isolate flex min-h-[330px] flex-col overflow-hidden bg-[#101c2e] px-6 py-6 text-white sm:px-10 lg:min-h-screen lg:px-14 lg:py-10">
           <Image
             alt=""
@@ -280,9 +315,13 @@ export default function RegisterPage() {
               />
             </Link>
             <Link
-              className="rounded-full border border-white/25 px-4 py-2 text-xs font-semibold text-white/85 transition-colors hover:border-white/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277]"
+              className="group inline-flex h-10 items-center gap-2 rounded-md border border-[#e96a32] bg-[#e96a32] px-4 text-xs font-bold text-white shadow-[0_6px_18px_#00000026] transition-all duration-300 hover:-translate-y-0.5 hover:bg-transparent hover:text-[#ffd277] hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               href="/"
             >
+              <Home
+                aria-hidden="true"
+                className="size-4 text-current transition-transform duration-300 group-hover:-translate-y-px motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
+              />
               Back to home
             </Link>
           </div>
@@ -323,9 +362,17 @@ export default function RegisterPage() {
 
           <div className="relative z-10 hidden items-center justify-between border-t border-white/15 pt-5 text-xs text-white/65 sm:flex">
             <span>Tools for every kind of ambition.</span>
-            <span className="font-semibold tracking-[0.2em] text-[#ffd277]">
-              GEARRENT
-            </span>
+            <Link
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 py-1.5 pl-1.5 pr-3 transition-colors hover:border-[#ffd277]/40 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277]"
+              href="/"
+            >
+              <span className="grid size-7 place-items-center rounded-full bg-[#ffd277]/15 text-[#ffd277]">
+                <Cog aria-hidden="true" className="size-4" />
+              </span>
+              <span className="text-sm font-extrabold tracking-tight text-white">
+                Gear<span className="text-[#ffd277]">Rent</span>
+              </span>
+            </Link>
           </div>
         </section>
 
@@ -614,16 +661,14 @@ export default function RegisterPage() {
 
               <button
                 className="group mt-3 inline-flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#e96a32] px-5 text-sm font-bold text-white shadow-[0_8px_20px_#e96a3233] transition-all hover:-translate-y-0.5 hover:bg-[#cf5624] hover:shadow-[0_12px_24px_#e96a3240] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32] disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isSubmitting || isUploadingPhoto}
+                disabled={isUploadingPhoto || isSubmitting}
                 type="submit"
               >
-                {isSubmitting ? "Creating your account..." : "Create account"}
-                {!isSubmitting && (
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="size-4 transition-transform group-hover:translate-x-1"
-                  />
-                )}
+                {isSubmitting ? "Creating account..." : "Create account"}
+                <ArrowRight
+                  aria-hidden="true"
+                  className="size-4 transition-transform group-hover:translate-x-1"
+                />
               </button>
             </form>
 
