@@ -261,7 +261,7 @@ export default function RegisterPage() {
       )}
 
       <div className="grid min-h-screen lg:grid-cols-[1.02fr_0.98fr]">
-        <section className="relative isolate flex min-h-[330px] flex-col overflow-hidden bg-[#101c2e] px-6 py-6 text-white sm:px-10 lg:min-h-screen lg:px-14 lg:py-10">
+        <section className="relative isolate flex min-h-82.5 flex-col overflow-hidden bg-[#101c2e] px-6 py-6 text-white sm:px-10 lg:min-h-screen lg:px-14 lg:py-10">
           <Image
             alt=""
             aria-hidden="true"
@@ -292,7 +292,7 @@ export default function RegisterPage() {
           )}
           <div
             aria-hidden="true"
-            className="absolute inset-0 z-0 bg-gradient-to-br from-[#0a1729]/95 via-[#0a1729]/75 to-[#0a1729]/45"
+            className="absolute inset-0 z-0 bg-linear-to-br from-[#0a1729]/95 via-[#0a1729]/75 to-[#0a1729]/45"
           />
           <div
             aria-hidden="true"

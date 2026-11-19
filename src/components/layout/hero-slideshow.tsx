@@ -370,58 +370,46 @@ export function HeroSlideshow() {
               ease: "easeOut",
             }}
           >
-              <motion.div
-                aria-hidden="true"
-                animate={{ rotate: prefersReducedMotion ? 0 : 360 }}
-                className="absolute left-1/2 top-12 size-[19rem] rounded-full border border-[#ffc45b]/35"
-                transition={{
-                  duration: 24,
-                  ease: "linear",
-                  repeat: prefersReducedMotion ? 0 : Infinity,
-                }}
-              >
-                <span className="absolute right-8 top-8 size-2.5 rounded-full bg-[#ffc45b] shadow-[0_0_1.25rem_#ffc45b]" />
-              </motion.div>
-              <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-slate-950/65 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">
-                    GearRent / Project kit
-                  </span>
-                  <Sparkles
-                    aria-hidden="true"
-                    className="size-5 text-[#ffc45b]"
-                  />
-                </div>
-                <div className="my-7 flex size-16 items-center justify-center rounded-2xl bg-[#e96a32] text-2xl font-black text-white shadow-lg shadow-[#e96a32]/30">
-                  0{activeIndex + 1}
-                </div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffc45b]">
-                  The right kit for
-                </p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
-                  {activeSlide.collection}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-white/70">
-                  {activeSlide.collectionDescription}
-                </p>
-                <div
-                  aria-label="Featured equipment categories"
-                  className="mt-6 flex flex-wrap gap-2"
-                >
-                  {activeSlide.categories.map((category) => (
-                    <span
-                      className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/85"
-                      key={category}
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-                <div
+            <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-slate-950/65 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">
+                  GearRent / Project kit
+                </span>
+                <Sparkles
                   aria-hidden="true"
-                  className="mt-7 h-1 w-16 rounded-full bg-[#ffc45b]"
+                  className="size-5 text-[#ffc45b]"
                 />
               </div>
+              <div className="my-7 flex size-16 items-center justify-center rounded-2xl bg-[#e96a32] text-2xl font-black text-white shadow-lg shadow-[#e96a32]/30">
+                0{activeIndex + 1}
+              </div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffc45b]">
+                The right kit for
+              </p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+                {activeSlide.collection}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-white/70">
+                {activeSlide.collectionDescription}
+              </p>
+              <div
+                aria-label="Featured equipment categories"
+                className="mt-6 flex flex-wrap gap-2"
+              >
+                {activeSlide.categories.map((category) => (
+                  <span
+                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/85"
+                    key={category}
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+              <div
+                aria-hidden="true"
+                className="mt-7 h-1 w-16 rounded-full bg-[#ffc45b]"
+              />
+            </div>
           </motion.aside>
         </div>
       </div>
