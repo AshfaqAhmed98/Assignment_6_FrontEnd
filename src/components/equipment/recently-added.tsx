@@ -121,26 +121,38 @@ export function RecentlyAdded() {
         </motion.div>
 
         {state.status === "loading" && (
-          <p aria-live="polite" className="py-12 text-center text-slate-600">
+          <motion.p
+            aria-live="polite"
+            animate={{ opacity: 1, y: 0 }}
+            className="py-12 text-center text-slate-600"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
+          >
             Loading recently added equipment...
-          </p>
+          </motion.p>
         )}
         {state.status === "error" && (
-          <p
+          <motion.p
             aria-live="assertive"
             className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-800"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             {state.message}
-          </p>
+          </motion.p>
         )}
         {isShowingDemo && (
-          <p
+          <motion.p
             aria-live="polite"
             className="mb-5 rounded-xl border border-[#087e78]/20 bg-white/70 px-4 py-3 text-center text-sm text-[#087e78]"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             Demo preview: sample listings are shown because no approved
             equipment is available yet.
-          </p>
+          </motion.p>
         )}
 
         {leadItem && (

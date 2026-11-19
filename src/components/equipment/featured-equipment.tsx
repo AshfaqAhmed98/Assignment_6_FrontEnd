@@ -214,27 +214,39 @@ export function FeaturedEquipment() {
         )}
 
         {state.status === "loading" && (
-          <p aria-live="polite" className="py-12 text-center text-slate-600">
+          <motion.p
+            aria-live="polite"
+            animate={{ opacity: 1, y: 0 }}
+            className="py-12 text-center text-slate-600"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
+          >
             Loading featured equipment...
-          </p>
+          </motion.p>
         )}
         {state.status === "error" && (
-          <p
+          <motion.p
             aria-live="assertive"
+            animate={{ opacity: 1, y: 0 }}
             className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-800"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             {state.message}
-          </p>
+          </motion.p>
         )}
         {isShowingDemoItems && (
-          <p
+          <motion.p
             aria-live="polite"
+            animate={{ opacity: 1, y: 0 }}
             className="mb-5 rounded-lg border border-[#ffd277] bg-[#fff8e7] px-4 py-3 text-center text-sm text-slate-700"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
             role="status"
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             Demo preview: sample listings are shown because no approved
             equipment is available yet.
-          </p>
+          </motion.p>
         )}
         {displayedItems.length > 0 && (
           <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">

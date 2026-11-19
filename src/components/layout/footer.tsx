@@ -220,7 +220,11 @@ export function Footer() {
           <nav aria-label="GearRent social and contact links">
             <ul className="flex flex-wrap items-center gap-3">
               {socialLinks.map((social) => (
-                <li key={social.label}>
+                <motion.li
+                  key={social.label}
+                  whileHover={reduceMotion ? undefined : { scale: 1.06 }}
+                  whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+                >
                   <Link
                     aria-label={social.label}
                     className="group relative flex size-11 items-center justify-center"
@@ -250,7 +254,7 @@ export function Footer() {
                       {social.label}
                     </span>
                   </Link>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </nav>

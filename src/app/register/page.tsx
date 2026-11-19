@@ -45,6 +45,9 @@ export default function RegisterPage() {
   const [playBackgroundVideo, setPlayBackgroundVideo] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [accountRole, setAccountRole] = useState<"Customer" | "Owner">(
+    "Customer",
+  );
   const [photo, setPhoto] = useState("");
   const [photoMode, setPhotoMode] = useState<"url" | "upload">("url");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -162,6 +165,7 @@ export default function RegisterPage() {
           email: email.trim(),
           password,
           image: photo.trim(),
+          role: accountRole,
         }),
       });
 
@@ -443,6 +447,29 @@ export default function RegisterPage() {
                   </span>
                 </label>
               </div>
+
+              <label
+                className="block text-sm font-semibold text-slate-700"
+                htmlFor="register-role"
+              >
+                Account type
+                <select
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-[#122035] shadow-sm outline-none transition hover:border-slate-300 focus:border-[#e96a32] focus:ring-4 focus:ring-[#e96a32]/10"
+                  id="register-role"
+                  onChange={(event) =>
+                    setAccountRole(
+                      event.target.value === "Owner" ? "Owner" : "Customer",
+                    )
+                  }
+                  value={accountRole}
+                >
+                  <option value="Customer">Customer — rent equipment</option>
+                  <option value="Owner">Owner — list equipment</option>
+                </select>
+                <span className="mt-1 block text-xs font-normal text-slate-500">
+                  Admin accounts are assigned by the platform administrator.
+                </span>
+              </label>
 
               <fieldset>
                 <legend className="text-sm font-semibold text-slate-700">
