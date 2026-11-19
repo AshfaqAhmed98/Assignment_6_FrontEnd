@@ -129,6 +129,110 @@
   }
 }
 
+.equipment-search-input-shell:focus-within {
+  z-index: 20;
+  transform: scale(1.05);
+}
+
+.equipment-search-input-shell:focus-within .equipment-search-input {
+  background-color: #fff;
+  box-shadow: 13px 13px 100px #969696, -13px -13px 100px #fff;
+}
+
+.equipment-search-input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.equipment-search-input[type="number"]::-webkit-inner-spin-button,
+.equipment-search-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.equipment-price-stepper {
+  gap: 1px;
+  padding: 2px;
+  border: 1px solid rgb(8 22 45 / 12%);
+  border-radius: 0.65rem;
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 88%),
+    rgb(226 232 240 / 72%)
+  );
+  box-shadow:
+    0 1px 4px rgb(8 22 45 / 12%),
+    inset 0 1px 0 rgb(255 255 255 / 80%);
+}
+
+.equipment-price-stepper-button {
+  display: flex;
+  width: 1.25rem;
+  height: 0.875rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background-color: transparent;
+  color: #405168;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.equipment-price-stepper-button:hover {
+  border-radius: 0.3rem;
+  background: linear-gradient(135deg, #fff1c4, #ffd277);
+  color: #08162d;
+  box-shadow: 0 1px 4px rgb(233 106 50 / 22%);
+  transform: scale(1.04);
+}
+
+.equipment-price-stepper-button:active {
+  border-radius: 0.3rem;
+  background: #e96a32;
+  color: #fff;
+  transform: scale(0.94);
+}
+
+.equipment-price-stepper-button:focus-visible {
+  position: relative;
+  z-index: 1;
+  border-radius: 0.3rem;
+  outline: 2px solid #75d6c3;
+  outline-offset: -2px;
+}
+
+.equipment-filter-dropdown-list {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+
+.equipment-filter-dropdown-list:hover {
+  scrollbar-color: #c1c2c5 transparent;
+}
+
+.equipment-filter-dropdown-list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.equipment-filter-dropdown-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.equipment-filter-dropdown-list::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.equipment-filter-dropdown-list:hover::-webkit-scrollbar-thumb {
+  background: #c1c2c5;
+}
+
 .how-step-card {
   isolation: isolate;
 }

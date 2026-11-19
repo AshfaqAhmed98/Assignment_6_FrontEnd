@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, LayoutDashboard, LogOut } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
@@ -32,6 +33,12 @@ const navigationItemClassName =
 
 const mobileNavigationItemClassName =
   "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-800 transition-colors hover:bg-[#fff8e7] hover:text-[#c94f1c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]";
+
+function isNavigationActive(pathname: string, href: string): boolean {
+  return href === "/"
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
+}
 
 function AuthLink({
   href,
@@ -104,12 +111,14 @@ function MobileNavigationLink({
   href,
   label,
   index,
+  active = false,
   onNavigate,
   reduceMotion,
 }: {
   href: string;
   label: string;
   index: number;
+  active?: boolean;
   onNavigate: () => void;
   reduceMotion: boolean;
 }) {
@@ -125,11 +134,18 @@ function MobileNavigationLink({
       }}
     >
       <Link
-        className={`${mobileNavigationItemClassName} group`}
+        aria-current={active ? "page" : undefined}
+        className={`${mobileNavigationItemClassName} group ${
+          active ? "bg-[#fff8e7] text-[#c94f1c]" : ""
+        }`}
         href={href}
         onClick={onNavigate}
       >
-        <span className="size-1.5 rounded-full bg-[#e96a32]/60 transition-transform group-hover:scale-150 group-hover:bg-[#c94f1c] motion-reduce:transition-none" />
+        <span
+          className={`size-1.5 rounded-full bg-[#e96a32]/60 transition-transform group-hover:scale-150 group-hover:bg-[#c94f1c] motion-reduce:transition-none ${
+            active ? "scale-150 bg-[#c94f1c]" : ""
+          }`}
+        />
         <span>{label}</span>
         <ArrowRight
           aria-hidden="true"
@@ -251,6 +267,7 @@ function AccountActions({
 }
 
 export function Navbar() {
+  const pathname = usePathname();
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -361,11 +378,31 @@ export function Navbar() {
           aria-label="Main navigation"
           className="hidden items-center justify-self-center gap-1 xl:flex"
         >
-          <NavigationLink active href="/" label="Home" />
-          <NavigationLink href="/equipment" label="All Equipment" />
-          <NavigationLink href="/about" label="About us" />
-          <NavigationLink href="/contact" label="Contact Us" />
-          <NavigationLink href="/how-it-works" label="How it works" />
+          <NavigationLink
+            active={isNavigationActive(pathname, "/")}
+            href="/"
+            label="Home"
+          />
+          <NavigationLink
+            active={isNavigationActive(pathname, "/equipment")}
+            href="/equipment"
+            label="All Equipment"
+          />
+          <NavigationLink
+            active={isNavigationActive(pathname, "/about")}
+            href="/about"
+            label="About us"
+          />
+          <NavigationLink
+            active={isNavigationActive(pathname, "/contact")}
+            href="/contact"
+            label="Contact Us"
+          />
+          <NavigationLink
+            active={isNavigationActive(pathname, "/how-it-works")}
+            href="/how-it-works"
+            label="How it works"
+          />
         </nav>
 
         <div className="hidden items-center justify-self-end gap-3 xl:flex">
@@ -451,6 +488,7 @@ export function Navbar() {
                 <div className="grid gap-2 p-3">
                   <nav aria-label="Mobile navigation" className="grid gap-1">
                     <MobileNavigationLink
+                      active={isNavigationActive(pathname, "/")}
                       href="/"
                       index={0}
                       label="Home"
@@ -458,6 +496,7 @@ export function Navbar() {
                       reduceMotion={reduceMotion}
                     />
                     <MobileNavigationLink
+                      active={isNavigationActive(pathname, "/equipment")}
                       href="/equipment"
                       index={1}
                       label="All Equipment"
@@ -465,6 +504,7 @@ export function Navbar() {
                       reduceMotion={reduceMotion}
                     />
                     <MobileNavigationLink
+                      active={isNavigationActive(pathname, "/about")}
                       href="/about"
                       index={2}
                       label="About us"
@@ -472,6 +512,7 @@ export function Navbar() {
                       reduceMotion={reduceMotion}
                     />
                     <MobileNavigationLink
+                      active={isNavigationActive(pathname, "/contact")}
                       href="/contact"
                       index={3}
                       label="Contact Us"
@@ -479,6 +520,7 @@ export function Navbar() {
                       reduceMotion={reduceMotion}
                     />
                     <MobileNavigationLink
+                      active={isNavigationActive(pathname, "/how-it-works")}
                       href="/how-it-works"
                       index={4}
                       label="How it works"
