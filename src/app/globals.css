@@ -129,3 +129,88 @@
   }
 }
 
+.how-step-card {
+  isolation: isolate;
+}
+
+.how-step-card::before,
+.how-step-card::after {
+  position: absolute;
+  inset: -55%;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 292deg,
+    #75d6c3 316deg,
+    #ffc45b 335deg,
+    #fb9060 351deg,
+    transparent 360deg
+  );
+  animation: how-step-card-spin 3s linear infinite;
+  animation-play-state: paused;
+  transition: opacity 300ms ease;
+}
+
+.how-step-card::after {
+  background: conic-gradient(
+    from 180deg,
+    transparent 0deg 300deg,
+    #fb9060 322deg,
+    #75d6c3 342deg,
+    transparent 360deg
+  );
+  animation-duration: 4s;
+  animation-direction: reverse;
+}
+
+.how-step-card__surface {
+  position: relative;
+}
+
+.how-step-card__surface::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7rem;
+  height: 7rem;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background: rgb(255 255 255 / 28%);
+  filter: blur(48px);
+  transform: translate(-50%, -50%);
+  transition: opacity 300ms ease;
+}
+
+@keyframes how-step-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .how-step-card:hover::before,
+  .how-step-card:hover::after {
+    opacity: 1;
+    animation-play-state: running;
+  }
+
+  .how-step-card:hover .how-step-card__surface::before {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .how-step-card::before,
+  .how-step-card::after,
+  .how-step-card__surface::before {
+    animation: none;
+    transition: none;
+    opacity: 0;
+  }
+}
+
+
