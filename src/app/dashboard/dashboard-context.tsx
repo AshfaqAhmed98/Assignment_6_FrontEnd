@@ -12,13 +12,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  ArrowUpRight,
   BarChart3,
+  Boxes,
+  Building2,
   CalendarDays,
+  ClipboardList,
   CircleUserRound,
   Heart,
   LayoutDashboard,
   LoaderCircle,
+  PackagePlus,
   ShieldCheck,
+  Wrench,
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Footer } from "@/components/layout/footer";
@@ -155,6 +161,204 @@ function LoadingPanel({ message }: { message: string }) {
   );
 }
 
+function OwnerDashboardHero({ user }: { user: DashboardUser }) {
+  return (
+    <section className="relative isolate overflow-hidden bg-[#172a21] pb-10 pt-28 text-[#fff9ed] sm:pb-12">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-32 size-[26rem] rounded-full border border-[#f3a65c]/15"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-4 -top-16 size-[18rem] rounded-full border border-[#f3a65c]/20"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#101f19]/70 to-transparent"
+      />
+      <div className="relative mx-auto flex max-w-[1480px] flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-[#f3a65c]">
+            <Wrench aria-hidden="true" className="size-4" />
+            GearRent / Owner studio
+          </p>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">
+            Your rental operation,
+            <span className="block text-[#f3a65c]">all in one place.</span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#fff9ed]/65 sm:text-base">
+            Keep your inventory ready, follow each booking, and grow your
+            equipment business from one focused workspace.
+          </p>
+        </div>
+        <div className="flex min-w-64 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#f3a65c] text-sm font-black text-[#172a21]">
+            {getInitials(user.name)}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#f3a65c]">
+              Owner account
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-extrabold text-white">
+              {user.name}
+            </span>
+          </span>
+          <Building2 aria-hidden="true" className="ml-auto size-5 shrink-0 text-white/40" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OwnerDashboardNavigation({
+  pathname,
+  reduceMotion,
+  user,
+}: {
+  pathname: string;
+  reduceMotion: boolean;
+  user: DashboardUser;
+}) {
+  const equipmentActive =
+    pathname === "/dashboard/equipment" ||
+    (pathname.startsWith("/dashboard/equipment/") &&
+      !pathname.startsWith("/dashboard/equipment/new"));
+
+  return (
+    <aside
+      aria-label="Owner workspace navigation"
+      className="rounded-[1.75rem] bg-[#172a21] p-4 text-white shadow-[0_24px_70px_-45px_rgba(23,42,33,0.8)] sm:p-5 lg:sticky lg:top-24"
+    >
+      <div className="flex items-center gap-3 border-b border-white/10 px-2 pb-5">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-[#f3a65c] text-[#172a21]">
+          <Building2 aria-hidden="true" className="size-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-black">Owner studio</span>
+          <span className="mt-0.5 block truncate text-xs font-medium text-white/50">
+            {user.email}
+          </span>
+        </span>
+      </div>
+
+      <nav aria-label="Owner dashboard" className="mt-5 grid gap-1.5">
+        <OwnerDashboardNavLink
+          active={pathname === "/dashboard"}
+          href="/dashboard"
+          icon={<LayoutDashboard aria-hidden="true" className="size-[18px]" />}
+          label="Overview"
+          reduceMotion={reduceMotion}
+        />
+        <OwnerDashboardNavLink
+          active={pathname === "/dashboard/equipment/new"}
+          href="/dashboard/equipment/new"
+          icon={<PackagePlus aria-hidden="true" className="size-[18px]" />}
+          label="Add equipment"
+          reduceMotion={reduceMotion}
+        />
+        <OwnerDashboardNavLink
+          active={equipmentActive}
+          href="/dashboard/equipment"
+          icon={<Boxes aria-hidden="true" className="size-[18px]" />}
+          label="My equipment"
+          reduceMotion={reduceMotion}
+        />
+        <OwnerDashboardNavLink
+          active={pathname === "/dashboard/equipment-rentals"}
+          href="/dashboard/equipment-rentals"
+          icon={<ClipboardList aria-hidden="true" className="size-[18px]" />}
+          label="Rental activity"
+          reduceMotion={reduceMotion}
+        />
+        <OwnerDashboardNavLink
+          active={pathname === "/dashboard/profile"}
+          href="/dashboard/profile"
+          icon={<CircleUserRound aria-hidden="true" className="size-[18px]" />}
+          label="My profile"
+          reduceMotion={reduceMotion}
+        />
+      </nav>
+
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#f3a65c]">
+          Ready for another project?
+        </p>
+        <p className="mt-2 text-xs leading-5 text-white/60">
+          Add equipment to your inventory and send it for review.
+        </p>
+        <Link
+          className="mt-4 flex min-h-11 items-center justify-between gap-2 rounded-xl bg-[#f3a65c] px-3 text-xs font-black text-[#172a21] transition hover:bg-[#ffc17f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          href="/dashboard/equipment/new"
+        >
+          Create a listing
+          <ArrowUpRight aria-hidden="true" className="size-4" />
+        </Link>
+      </div>
+      <p className="mt-5 px-2 text-[11px] font-semibold leading-5 text-white/35">
+        Your equipment, your business, your GearRent workspace.
+      </p>
+    </aside>
+  );
+}
+
+function OwnerDashboardNavLink({
+  href,
+  label,
+  active,
+  icon,
+  reduceMotion,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  icon: ReactNode;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      animate={{ x: 0 }}
+      whileHover={reduceMotion ? undefined : { x: 3 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18 }}
+    >
+      <Link
+        aria-current={active ? "page" : undefined}
+        className={`group relative flex h-12 items-center justify-between overflow-hidden rounded-xl px-3 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f3a65c] ${
+          active ? "text-[#172a21]" : "text-white/65 hover:text-white"
+        }`}
+        href={href}
+      >
+        {active ? (
+          <motion.span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-xl bg-[#f3a65c]"
+            layoutId="owner-dashboard-active-navigation"
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 420, damping: 34 }
+            }
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-xl bg-white/[0.07] opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        )}
+        <span className="relative z-10 flex items-center gap-3">
+          {icon}
+          {label}
+        </span>
+        {active && (
+          <ArrowUpRight
+            aria-hidden="true"
+            className="relative z-10 size-4"
+          />
+        )}
+      </Link>
+    </motion.div>
+  );
+}
+
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -216,82 +420,106 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const customerOnlyPath =
     pathname.startsWith("/dashboard/rentals") ||
     pathname.startsWith("/dashboard/favorites");
+  const ownerOnlyPath =
+    pathname.startsWith("/dashboard/equipment") ||
+    pathname.startsWith("/dashboard/equipment-rentals");
+  const isOwnerDashboard =
+    state.status === "ready" && state.user.role === "Owner";
 
   useEffect(() => {
     if (
       state.status === "ready" &&
-      state.user.role !== "Customer" &&
-      customerOnlyPath
+      ((customerOnlyPath && state.user.role !== "Customer") ||
+        (ownerOnlyPath && state.user.role !== "Owner"))
     ) {
       router.replace("/dashboard/profile");
     }
-  }, [customerOnlyPath, router, state]);
+  }, [customerOnlyPath, ownerOnlyPath, router, state]);
 
-  const showProtectedPage =
+  const roleCanViewPage =
     state.status === "ready" &&
-    (state.user.role === "Customer" || !customerOnlyPath);
+    (customerOnlyPath
+      ? state.user.role === "Customer"
+      : ownerOnlyPath
+        ? state.user.role === "Owner"
+        : true);
+  const showProtectedPage = state.status === "ready" && roleCanViewPage;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
+    <div
+      className={`min-h-screen ${
+        isOwnerDashboard ? "bg-[#f4f0e7]" : "bg-[#f5f7fb]"
+      }`}
+    >
       <Navbar />
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_78%_14%,rgba(233,106,50,0.2),transparent_26%),linear-gradient(135deg,#08162d_0%,#10294c_58%,#08162d_100%)] pb-20 pt-32 text-white">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 top-6 size-72 rounded-full border border-white/10"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-2 top-20 size-44 rounded-full border border-[#ffd277]/15"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-1/4 h-px w-1/2 bg-gradient-to-r from-transparent via-[#ffd277]/70 to-transparent"
-        />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#75d6c3]">
-            Your GearRent account
-          </p>
-          <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
-            <div>
-              <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
-                Account dashboard
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">
-                Keep track of your rentals, saved equipment, and profile in one
-                place.
-              </p>
-            </div>
-            {state.status === "ready" && (
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <span className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#ffd277] text-sm font-black text-[#08162d]">
-                  {state.user.image ? (
-                    <Image
-                      alt=""
-                      className="size-full object-cover"
-                      height={40}
-                      src={state.user.image}
-                      unoptimized
-                      width={40}
-                    />
-                  ) : (
-                    getInitials(state.user.name)
-                  )}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold text-white">
-                    {state.user.name}
-                  </span>
-                  <span className="block truncate text-xs font-semibold text-[#ffd277]">
-                    {state.user.role}
-                  </span>
-                </span>
+      {isOwnerDashboard ? (
+        <OwnerDashboardHero user={state.user} />
+      ) : (
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_78%_14%,rgba(233,106,50,0.2),transparent_26%),linear-gradient(135deg,#08162d_0%,#10294c_58%,#08162d_100%)] pb-20 pt-32 text-white">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 top-6 size-72 rounded-full border border-white/10"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-2 top-20 size-44 rounded-full border border-[#ffd277]/15"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 left-1/4 h-px w-1/2 bg-gradient-to-r from-transparent via-[#ffd277]/70 to-transparent"
+          />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#75d6c3]">
+              Your GearRent account
+            </p>
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
+              <div>
+                <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
+                  Account dashboard
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">
+                  Keep track of your rentals, saved equipment, and profile in
+                  one place.
+                </p>
               </div>
-            )}
+              {state.status === "ready" && (
+                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <span className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#ffd277] text-sm font-black text-[#08162d]">
+                    {state.user.image ? (
+                      <Image
+                        alt=""
+                        className="size-full object-cover"
+                        height={40}
+                        src={state.user.image}
+                        unoptimized
+                        width={40}
+                      />
+                    ) : (
+                      getInitials(state.user.name)
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-bold text-white">
+                      {state.user.name}
+                    </span>
+                    <span className="block truncate text-xs font-semibold text-[#ffd277]">
+                      {state.user.role}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <main className="relative mx-auto -mt-10 max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      <main
+        className={
+          isOwnerDashboard
+            ? "relative mx-auto max-w-[1480px] px-4 pb-16 pt-8 sm:px-6 lg:px-8"
+            : "relative mx-auto -mt-10 max-w-7xl px-4 pb-20 sm:px-6 lg:px-8"
+        }
+      >
         {state.status === "loading" && (
           <LoadingPanel message="Verifying your account…" />
         )}
@@ -320,6 +548,18 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           <DashboardContext.Provider
             value={{ ...state, refreshUser }}
           >
+            {isOwnerDashboard ? (
+              <div className="grid items-start gap-5 lg:grid-cols-[270px_minmax(0,1fr)]">
+                <OwnerDashboardNavigation
+                  pathname={pathname}
+                  reduceMotion={reduceMotion}
+                  user={state.user}
+                />
+                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-[#e6dece] bg-[#fffdf8] p-5 shadow-[0_24px_70px_-55px_rgba(23,42,33,0.55)] sm:p-8">
+                  <DashboardRouteTransition>{children}</DashboardRouteTransition>
+                </section>
+              </div>
+            ) : (
             <div className="grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
               <aside
                 aria-label="Dashboard navigation"
@@ -367,6 +607,40 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                       />
                     </>
                   )}
+                  {state.user.role === "Owner" && (
+                    <>
+                      <DashboardNavLink
+                        active={pathname === "/dashboard/equipment/new"}
+                        href="/dashboard/equipment/new"
+                        icon={<PackagePlus aria-hidden="true" className="size-4" />}
+                        label="Add Equipment"
+                        reduceMotion={reduceMotion}
+                      />
+                      <DashboardNavLink
+                        active={
+                          pathname === "/dashboard/equipment" ||
+                          (pathname.startsWith("/dashboard/equipment/") &&
+                            !pathname.startsWith("/dashboard/equipment/new"))
+                        }
+                        href="/dashboard/equipment"
+                        icon={<Boxes aria-hidden="true" className="size-4" />}
+                        label="My Equipment"
+                        reduceMotion={reduceMotion}
+                      />
+                      <DashboardNavLink
+                        active={pathname === "/dashboard/equipment-rentals"}
+                        href="/dashboard/equipment-rentals"
+                        icon={
+                          <ClipboardList
+                            aria-hidden="true"
+                            className="size-4"
+                          />
+                        }
+                        label="My Equipment Rental"
+                        reduceMotion={reduceMotion}
+                      />
+                    </>
+                  )}
                   <DashboardNavLink
                     active={pathname === "/dashboard/profile"}
                     href="/dashboard/profile"
@@ -377,7 +651,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                         <CircleUserRound aria-hidden="true" className="size-4" />
                       )
                     }
-                    label="Profile"
+                    label={state.user.role === "Owner" ? "My Profile" : "Profile"}
                     reduceMotion={reduceMotion}
                   />
                 </nav>
@@ -392,6 +666,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                 <DashboardRouteTransition>{children}</DashboardRouteTransition>
               </section>
             </div>
+            )}
           </DashboardContext.Provider>
         )}
       </main>

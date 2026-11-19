@@ -18,6 +18,7 @@ import {
 import { motion, useReducedMotion } from "framer-motion";
 import { dashboardRequest } from "@/lib/dashboard-api";
 import { useDashboard } from "./dashboard-context";
+import OwnerOverviewClient from "./owner-overview-client";
 import { PerformanceChart } from "./performance-chart";
 
 type OverviewBooking = {
@@ -248,7 +249,11 @@ export default function DashboardPage() {
     )
     .slice(0, 4);
 
-  if (user.role !== "Customer") {
+  if (user.role === "Owner") {
+    return <OwnerOverviewClient />;
+  }
+
+  if (user.role === "Admin") {
     return (
       <motion.div
         animate={{ opacity: 1, y: 0 }}

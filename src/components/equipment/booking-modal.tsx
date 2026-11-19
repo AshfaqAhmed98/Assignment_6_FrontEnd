@@ -2,9 +2,13 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { LoaderCircle, X } from "lucide-react";
-import type { FeaturedEquipment } from "@/data/featured-equipment";
+import {
+  getRentalUnitRateMinor,
+  type FeaturedEquipment,
+  type RentalType,
+} from "@/data/featured-equipment";
 
-export type RentalType = "daily" | "weekly" | "monthly";
+export type { RentalType } from "@/data/featured-equipment";
 type AvailabilityState =
   | { queryKey: string; status: "checking" }
   | {
@@ -80,7 +84,7 @@ export function BookingModal({
   const periodDays = { daily: 1, weekly: 7, monthly: 30 }[rentalType];
   const billedUnits =
     durationDays > 0 ? Math.ceil(durationDays / periodDays) : 0;
-  const unitRateMinor = Math.round(equipment.dailyRate * 100) * periodDays;
+  const unitRateMinor = getRentalUnitRateMinor(equipment, rentalType);
   const totalAmountMinor =
     unitRateMinor * billedUnits * requiredQuantity;
   const availabilityQuery = new URLSearchParams({

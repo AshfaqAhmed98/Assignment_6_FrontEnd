@@ -19,6 +19,7 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import {
+  getRentalUnitRateMinor,
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
 } from "@/data/featured-equipment";
@@ -31,6 +32,10 @@ type EquipmentDetailsItem = FeaturedEquipmentItem & {
   totalQuantity: number;
   availableQuantity: number;
   ownerName: string;
+  condition: string;
+  brand: string;
+  model: string;
+  rentalTerms: string;
 };
 type UserRole = "Customer" | "Owner" | "Admin";
 type BookingDates = { startDate: string; endDate: string };
@@ -67,7 +72,15 @@ function isEquipmentDetails(value: unknown): value is EquipmentDetailsItem {
     typeof value.availableQuantity === "number" &&
     Number.isInteger(value.availableQuantity) &&
     "ownerName" in value &&
-    typeof value.ownerName === "string"
+    typeof value.ownerName === "string" &&
+    "condition" in value &&
+    typeof value.condition === "string" &&
+    "brand" in value &&
+    typeof value.brand === "string" &&
+    "model" in value &&
+    typeof value.model === "string" &&
+    "rentalTerms" in value &&
+    typeof value.rentalTerms === "string"
   );
 }
 
@@ -536,6 +549,39 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                   </div>
                 </div>
 
+                {(state.item.condition ||
+                  state.item.brand ||
+                  state.item.model) && (
+                  <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200/80 bg-[#f8fafc] p-4 sm:grid-cols-3">
+                    {[
+                      ["Condition", state.item.condition],
+                      ["Brand", state.item.brand],
+                      ["Model", state.item.model],
+                    ]
+                      .filter(([, value]) => value)
+                      .map(([label, value]) => (
+                        <div key={label}>
+                          <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-400">
+                            {label}
+                          </p>
+                          <p className="mt-1 text-sm font-bold text-[#122035]">
+                            {value}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                )}
+                {state.item.rentalTerms && (
+                  <div className="mt-4 rounded-2xl border border-[#f2d89d] bg-[#fff9eb] p-4">
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-[#9b4b1f]">
+                      Rental terms and conditions
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                      {state.item.rentalTerms}
+                    </p>
+                  </div>
+                )}
+
                 <section
                   aria-label="Rental rates"
                   className="relative mt-7 overflow-hidden rounded-3xl bg-[#08162d] p-5 text-white sm:p-6"
@@ -560,7 +606,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                     </div>
                     <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
                       <button
-                        aria-label={`Book daily at ৳${formatRate(Math.round(state.item.dailyRate * 100))}`}
+                        aria-label={`Book daily at ৳${formatRate(getRentalUnitRateMinor(state.item, "daily"))}`}
                         className="rounded-2xl bg-[#e96a32] p-3 text-left shadow-lg shadow-[#e96a32]/15 transition hover:-translate-y-0.5 hover:bg-[#f17840] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:p-4"
                         disabled={role !== "Customer" || !accessToken}
                         onClick={() => openBookingModal("daily")}
@@ -570,14 +616,14 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                           Daily
                         </span>
                         <span className="mt-2 block text-lg font-black text-white sm:text-xl">
-                          ৳{formatRate(Math.round(state.item.dailyRate * 100))}
+                          ৳{formatRate(getRentalUnitRateMinor(state.item, "daily"))}
                         </span>
                         <span className="mt-1 block text-[10px] font-semibold text-white/75 sm:text-xs">
                           Select rate
                         </span>
                       </button>
                       <button
-                        aria-label={`Book weekly at ৳${formatRate(Math.round(state.item.dailyRate * 100) * 7)}`}
+                        aria-label={`Book weekly at ৳${formatRate(getRentalUnitRateMinor(state.item, "weekly"))}`}
                         className="rounded-2xl border border-white/10 bg-white/[0.07] p-3 text-left transition hover:-translate-y-0.5 hover:border-[#75d6c3]/40 hover:bg-white/[0.12] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75d6c3] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:p-4"
                         disabled={role !== "Customer" || !accessToken}
                         onClick={() => openBookingModal("weekly")}
@@ -588,16 +634,14 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         </span>
                         <span className="mt-2 block text-lg font-black text-white sm:text-xl">
                           ৳
-                          {formatRate(
-                            Math.round(state.item.dailyRate * 100) * 7,
-                          )}
+                          {formatRate(getRentalUnitRateMinor(state.item, "weekly"))}
                         </span>
                         <span className="mt-1 block text-[10px] font-semibold text-white/55 sm:text-xs">
                           Select rate
                         </span>
                       </button>
                       <button
-                        aria-label={`Book monthly at ৳${formatRate(Math.round(state.item.dailyRate * 100) * 30)}`}
+                        aria-label={`Book monthly at ৳${formatRate(getRentalUnitRateMinor(state.item, "monthly"))}`}
                         className="rounded-2xl border border-white/10 bg-white/[0.07] p-3 text-left transition hover:-translate-y-0.5 hover:border-[#75d6c3]/40 hover:bg-white/[0.12] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75d6c3] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:p-4"
                         disabled={role !== "Customer" || !accessToken}
                         onClick={() => openBookingModal("monthly")}
@@ -608,9 +652,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         </span>
                         <span className="mt-2 block text-lg font-black text-white sm:text-xl">
                           ৳
-                          {formatRate(
-                            Math.round(state.item.dailyRate * 100) * 30,
-                          )}
+                          {formatRate(getRentalUnitRateMinor(state.item, "monthly"))}
                         </span>
                         <span className="mt-1 block text-[10px] font-semibold text-white/55 sm:text-xs">
                           Select rate
@@ -618,8 +660,9 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                       </button>
                     </div>
                     <p className="mt-3 text-xs leading-5 text-white/55">
-                      Weekly and monthly rates are based on 7 and 30 daily
-                      rates. Partial periods round up.
+                      The listed rate matches the owner’s selected period;
+                      other periods are derived proportionally. Partial
+                      periods round up.
                     </p>
                   </div>
                 </section>
