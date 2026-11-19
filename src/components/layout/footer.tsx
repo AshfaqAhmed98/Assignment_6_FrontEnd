@@ -1,0 +1,261 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+
+const exploreLinks = [
+  { label: "All Equipment", href: "/equipment" },
+  { label: "How It Works", href: "/how-it-works" },
+  { label: "About GearRent", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
+];
+
+const accountLinks = [
+  { label: "Sign In", href: "/login" },
+  { label: "Create Account", href: "/register" },
+  { label: "My Dashboard", href: "/dashboard" },
+];
+
+type SocialIconName =
+  | "facebook"
+  | "instagram"
+  | "github"
+  | "location"
+  | "phone"
+  | "email";
+
+const socialLinks: Array<{
+  label: string;
+  href: string;
+  icon: SocialIconName;
+  color: string;
+}> = [
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+    icon: "facebook",
+    color: "#75d6c3",
+  },
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+    icon: "instagram",
+    color: "#ffc45b",
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/AshfaqAhmed98/Assignment_6_FrontEnd",
+    icon: "github",
+    color: "#fb9060",
+  },
+  {
+    label: "Location",
+    href: "https://maps.google.com/?q=Dhaka,Bangladesh",
+    icon: "location",
+    color: "#75d6c3",
+  },
+  {
+    label: "Phone",
+    href: "/contact",
+    icon: "phone",
+    color: "#ffc45b",
+  },
+  {
+    label: "Email",
+    href: "/contact",
+    icon: "email",
+    color: "#fb9060",
+  },
+];
+
+function SocialIcon({ name }: { name: SocialIconName }) {
+  if (name === "facebook") {
+    return (
+      <svg aria-hidden="true" className="size-[18px]" fill="currentColor" viewBox="0 0 320 512">
+        <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
+      </svg>
+    );
+  }
+
+  if (name === "instagram") {
+    return (
+      <svg aria-hidden="true" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <rect height="18" rx="5" width="18" x="3" y="3" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" fill="currentColor" r="1" stroke="none" />
+      </svg>
+    );
+  }
+
+  if (name === "location") {
+    return <MapPin aria-hidden="true" className="size-[18px]" />;
+  }
+
+  if (name === "phone") {
+    return <Phone aria-hidden="true" className="size-[18px]" />;
+  }
+
+  if (name === "email") {
+    return <Mail aria-hidden="true" className="size-[18px]" />;
+  }
+
+  return (
+    <svg aria-hidden="true" className="size-[18px]" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 .7a11.3 11.3 0 0 0-3.57 22c.57.1.78-.25.78-.55v-2.1c-3.18.69-3.85-1.35-3.85-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.69.08-.69 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.54-.29-5.21-1.27-5.21-5.64 0-1.25.44-2.26 1.17-3.06-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.17a10.9 10.9 0 0 1 5.72 0c2.18-1.48 3.14-1.17 3.14-1.17.62 1.57.23 2.73.11 3.02.73.8 1.17 1.81 1.17 3.06 0 4.38-2.68 5.35-5.23 5.63.41.36.78 1.06.78 2.14v3.18c0 .3.21.66.79.55A11.3 11.3 0 0 0 12 .7z" />
+    </svg>
+  );
+}
+
+export function Footer() {
+  const reduceMotion = useReducedMotion() ?? false;
+
+  return (
+    <footer className="relative isolate overflow-hidden bg-[#08162d] text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-28 bottom-[-12rem] size-[28rem] rounded-full bg-[#75d6c3]/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-32 top-[-12rem] size-[30rem] rounded-full bg-[#e96a32]/10 blur-3xl"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="grid items-end gap-7 border-b border-white/10 py-12 lg:grid-cols-[1fr_auto]"
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
+          transition={{ duration: reduceMotion ? 0 : 0.45, ease: "easeOut" }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.35 }}
+        >
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#75d6c3]">
+              Your next project starts here
+            </p>
+            <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+              Get the gear.
+              <span className="block text-[#ffc45b]">Make something great.</span>
+            </h2>
+          </div>
+          <Link
+            className="group inline-flex h-13 items-center justify-center gap-3 rounded-full bg-[#75d6c3] px-6 text-sm font-extrabold text-[#08162d] transition-all hover:-translate-y-1 hover:bg-[#a7f3e5]"
+            href="/equipment"
+          >
+            Browse equipment
+            <ArrowRight
+              aria-hidden="true"
+              className="size-4 transition-transform group-hover:translate-x-1"
+            />
+          </Link>
+        </motion.div>
+
+        <motion.div
+          className="grid gap-10 py-10 md:grid-cols-[1.25fr_0.75fr_0.75fr]"
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 14 }}
+          transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.25 }}
+        >
+          <div>
+            <Link aria-label="GearRent home" className="inline-flex" href="/">
+              <Image
+                alt=""
+                aria-hidden="true"
+                className="h-11 w-auto object-contain"
+                height={356}
+                src="/images/gearrent-logo-light.png"
+                width={1418}
+              />
+            </Link>
+            <p className="mt-5 max-w-sm text-sm leading-7 text-slate-300">
+              Rental planning for construction, creative work, events,
+              agriculture, and more.
+            </p>
+          </div>
+
+          <nav aria-label="Explore GearRent">
+            <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[#75d6c3]">
+              Explore
+            </h3>
+            <ul className="mt-5 grid gap-3">
+              {exploreLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    className="text-sm text-slate-300 transition-colors hover:text-[#ffc45b]"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="GearRent account">
+            <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[#ffc45b]">
+              Account
+            </h3>
+            <ul className="mt-5 grid gap-3">
+              {accountLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    className="text-sm text-slate-300 transition-colors hover:text-[#75d6c3]"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </motion.div>
+
+        <div className="flex flex-col gap-5 border-t border-white/10 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-slate-400">
+            © 2026 GearRent. All rights reserved.
+          </p>
+
+          <nav aria-label="GearRent social and contact links">
+            <ul className="flex flex-wrap items-center gap-3">
+              {socialLinks.map((social) => (
+                <li key={social.label}>
+                  <Link
+                    aria-label={social.label}
+                    className="group relative flex size-11 items-center justify-center"
+                    href={social.href}
+                    rel={social.href.startsWith("http") ? "noreferrer" : undefined}
+                    style={{ color: social.color }}
+                    target={social.href.startsWith("http") ? "_blank" : undefined}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-[5px] rounded-full border border-current opacity-0 transition-all duration-300 group-hover:translate-x-2 group-hover:-translate-y-2 group-hover:opacity-20"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-[5px] rounded-full border border-current opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-40"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-[5px] rounded-full border border-current opacity-0 transition-all duration-300 group-hover:opacity-70"
+                    />
+                    <span
+                      className="relative z-10 flex size-11 items-center justify-center rounded-full border border-white/10 bg-[#0d2039] shadow-[inset_0_0_16px_rgba(255,255,255,0.08),0_8px_16px_rgba(0,0,0,0.18)] transition-transform duration-300 group-hover:translate-x-2 group-hover:-translate-y-2"
+                    >
+                      <SocialIcon name={social.icon} />
+                    </span>
+                    <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2 py-1 text-[10px] font-bold text-[#08162d] opacity-0 shadow-lg transition-all duration-300 group-hover:-translate-y-1 group-hover:opacity-100">
+                      {social.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  );
+}
