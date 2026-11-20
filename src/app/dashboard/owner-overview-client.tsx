@@ -36,6 +36,13 @@ type OwnerRentalSummary = {
   bookingStatus: "upcoming" | "ongoing" | "completed" | "pending-payment";
 };
 
+type OwnerAnalytics = {
+  totalListedEquipment: number;
+  completedRentals: number;
+  totalEarningsMinor: number;
+  monthlyEarnings: { month: string; amountMinor: number }[];
+};
+
 type OwnerOverviewState =
   | { status: "loading" }
   | { status: "error"; message: string }
@@ -43,6 +50,7 @@ type OwnerOverviewState =
       status: "success";
       equipment: OwnerEquipment[];
       rentals: OwnerRentalSummary[];
+      analytics: OwnerAnalytics;
     };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -84,6 +92,39 @@ function parseRentalList(payload: unknown): OwnerRentalSummary[] | null {
     return null;
   }
   return payload.items.every(isOwnerRentalSummary) ? payload.items : null;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
+function isMonthlyEarning(
+  value: unknown,
+): value is { month: string; amountMinor: number } {
+  return (
+    isRecord(value) &&
+    typeof value.month === "string" &&
+    isNonNegativeInteger(value.amountMinor)
+  );
+}
+
+function parseOwnerAnalytics(payload: unknown): OwnerAnalytics | null {
+  if (
+    !isRecord(payload) ||
+    !isNonNegativeInteger(payload.totalListedEquipment) ||
+    !isNonNegativeInteger(payload.completedRentals) ||
+    !isNonNegativeInteger(payload.totalEarningsMinor) ||
+    !Array.isArray(payload.monthlyEarnings) ||
+    !payload.monthlyEarnings.every(isMonthlyEarning)
+  ) {
+    return null;
+  }
+  return {
+    totalListedEquipment: payload.totalListedEquipment,
+    completedRentals: payload.completedRentals,
+    totalEarningsMinor: payload.totalEarningsMinor,
+    monthlyEarnings: payload.monthlyEarnings,
+  };
 }
 
 function formatCurrency(amountMinor: number) {
@@ -169,21 +210,26 @@ export default function OwnerOverviewClient() {
 
     async function loadOwnerOverview() {
       try {
-        const [equipmentPayload, rentalPayload] = await Promise.all([
-          dashboardRequest("/api/equipment/mine", accessToken, {
-            signal: controller.signal,
-          }),
-          dashboardRequest("/api/bookings/owner", accessToken, {
-            signal: controller.signal,
-          }),
-        ]);
+        const [equipmentPayload, rentalPayload, analyticsPayload] =
+          await Promise.all([
+            dashboardRequest("/api/equipment/mine", accessToken, {
+              signal: controller.signal,
+            }),
+            dashboardRequest("/api/bookings/owner", accessToken, {
+              signal: controller.signal,
+            }),
+            dashboardRequest("/api/bookings/owner/analytics", accessToken, {
+              signal: controller.signal,
+            }),
+          ]);
         const equipment = parseEquipmentList(equipmentPayload);
         const rentals = parseRentalList(rentalPayload);
-        if (!equipment || !rentals) {
+        const analytics = parseOwnerAnalytics(analyticsPayload);
+        if (!equipment || !rentals || !analytics) {
           throw new Error("The owner services returned invalid dashboard data.");
         }
         if (!controller.signal.aborted) {
-          setState({ status: "success", equipment, rentals });
+          setState({ status: "success", equipment, rentals, analytics });
         }
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -229,25 +275,21 @@ export default function OwnerOverviewClient() {
       pendingPayments: state.rentals.filter(
         (rental) => rental.bookingStatus === "pending-payment",
       ).length,
-      completedRentals: state.rentals.filter(
-        (rental) => rental.bookingStatus === "completed",
-      ).length,
+      completedRentals: state.analytics.completedRentals,
       paidRentalCount: paidRentals.length,
-      revenueMinor: paidRentals.reduce(
-        (total, rental) => total + rental.amountMinor,
-        0,
-      ),
+      totalListedEquipment: state.analytics.totalListedEquipment,
+      revenueMinor: state.analytics.totalEarningsMinor,
+      currentMonthEarningsMinor:
+        state.analytics.monthlyEarnings.find(
+          (item) => item.month === new Date().toISOString().slice(0, 7),
+        )?.amountMinor ?? 0,
     };
   }, [state]);
 
   const firstName = user.name.trim().split(/\s+/)[0] || "there";
   const equipment =
     state.status === "success" ? state.equipment.slice(0, 3) : [];
-  const listingTotal = metrics
-    ? metrics.pendingListings +
-      metrics.approvedListings +
-      metrics.rejectedListings
-    : 0;
+  const listingTotal = metrics?.totalListedEquipment ?? 0;
   const statCards = metrics
     ? [
         {
@@ -255,7 +297,7 @@ export default function OwnerOverviewClient() {
           icon: <Boxes aria-hidden="true" className="size-5" />,
           label: "Equipment listed",
           note: `${metrics.approvedListings} approved and rentable`,
-          value: String(listingTotal),
+          value: String(metrics.totalListedEquipment),
         },
         {
           href: "/dashboard/equipment",
@@ -273,9 +315,16 @@ export default function OwnerOverviewClient() {
         },
         {
           href: "/dashboard/equipment-rentals",
+          icon: <CheckCircle2 aria-hidden="true" className="size-5" />,
+          label: "Completed rentals",
+          note: "Rental periods returned",
+          value: String(metrics.completedRentals),
+        },
+        {
+          href: "/dashboard/equipment-rentals",
           icon: <CircleDollarSign aria-hidden="true" className="size-5" />,
           label: "Paid revenue",
-          note: `${metrics.paidRentalCount} paid rental${metrics.paidRentalCount === 1 ? "" : "s"}`,
+          note: `${formatCurrency(metrics.currentMonthEarningsMinor)} this month`,
           value: formatCurrency(metrics.revenueMinor),
         },
       ]
@@ -374,7 +423,7 @@ export default function OwnerOverviewClient() {
 
       {state.status === "success" && metrics && (
         <>
-          <section aria-label="Owner business metrics" className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+          <section aria-label="Owner business metrics" className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-5">
             {statCards.map((card, index) => (
               <OwnerMetric
                 key={card.label}

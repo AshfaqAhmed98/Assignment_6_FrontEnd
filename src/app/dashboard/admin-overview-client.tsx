@@ -23,15 +23,67 @@ type AdminOverview = {
   approvedEquipment: number;
   pendingEquipment: number;
   rejectedEquipment: number;
-  rentals: number;
-  pendingPayments: number;
+  bookings: number;
+  completedRentals: number;
+  totalRevenueMinor: number;
+  currentMonthBookings: number;
   rentalDates: string[];
   paidRentalDates: string[];
   paidRevenuePoints: { date: string; amountMinor: number }[];
 };
 
+type AdminAnalytics = {
+  totalUsers: number;
+  totalEquipment: number;
+  totalBookings: number;
+  pendingApprovals: number;
+  completedRentals: number;
+  totalRevenueMinor: number;
+  monthlyBookings: { month: string; count: number }[];
+};
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMonthlyBooking(value: unknown): value is { month: string; count: number } {
+  return (
+    isRecord(value) &&
+    typeof value.month === "string" &&
+    isNonNegativeInteger(value.count)
+  );
+}
+
+function isAdminAnalytics(value: unknown): value is AdminAnalytics {
+  if (
+    !isRecord(value) ||
+    !isNonNegativeInteger(value.totalUsers) ||
+    !isNonNegativeInteger(value.totalEquipment) ||
+    !isNonNegativeInteger(value.totalBookings) ||
+    !isNonNegativeInteger(value.pendingApprovals) ||
+    !isNonNegativeInteger(value.completedRentals) ||
+    typeof value.totalRevenueMinor !== "number" ||
+    !Number.isSafeInteger(value.totalRevenueMinor) ||
+    value.totalRevenueMinor < 0 ||
+    !Array.isArray(value.monthlyBookings) ||
+    !value.monthlyBookings.every(isMonthlyBooking)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function formatCurrency(amountMinor: number) {
+  return new Intl.NumberFormat("en-BD", {
+    style: "currency",
+    currency: "BDT",
+    maximumFractionDigits: 2,
+  }).format(amountMinor / 100);
 }
 
 function isAdminEquipmentSummary(
@@ -50,14 +102,21 @@ function isAdminRentalSummary(
   value: unknown,
 ): value is {
   id: string;
+  recordType: "booking" | "reservation";
   paymentStatus: "paid" | "pending";
+  bookingStatus: "upcoming" | "ongoing" | "completed" | "pending-payment";
   bookingDate: string;
   amountMinor: number;
 } {
   return (
     isRecord(value) &&
     typeof value.id === "string" &&
+    (value.recordType === "booking" || value.recordType === "reservation") &&
     (value.paymentStatus === "paid" || value.paymentStatus === "pending") &&
+    (value.bookingStatus === "upcoming" ||
+      value.bookingStatus === "ongoing" ||
+      value.bookingStatus === "completed" ||
+      value.bookingStatus === "pending-payment") &&
     typeof value.bookingDate === "string" &&
     typeof value.amountMinor === "number" &&
     Number.isFinite(value.amountMinor)
@@ -65,13 +124,11 @@ function isAdminRentalSummary(
 }
 
 function parseOverview(
-  userPayload: unknown,
   equipmentPayload: unknown,
   rentalPayload: unknown,
+  analyticsPayload: unknown,
 ): AdminOverview | null {
   if (
-    !isRecord(userPayload) ||
-    typeof userPayload.total !== "number" ||
     !isRecord(equipmentPayload) ||
     !Array.isArray(equipmentPayload.items) ||
     !isRecord(rentalPayload) ||
@@ -80,6 +137,10 @@ function parseOverview(
     return null;
   }
 
+  if (!isAdminAnalytics(analyticsPayload)) {
+    return null;
+  }
+  const analytics = analyticsPayload;
   const equipmentItems = equipmentPayload.items.filter(
     isAdminEquipmentSummary,
   );
@@ -91,27 +152,26 @@ function parseOverview(
     return null;
   }
 
+  const bookings = rentalItems.filter((item) => item.recordType === "booking");
   return {
-    users: userPayload.total,
-    equipment: equipmentItems.length,
+    users: analytics.totalUsers,
+    equipment: analytics.totalEquipment,
     approvedEquipment: equipmentItems.filter(
       (item) => item.approvalStatus === "approved",
     ).length,
-    pendingEquipment: equipmentItems.filter(
-      (item) => item.approvalStatus === "pending",
-    ).length,
+    pendingEquipment: analytics.pendingApprovals,
     rejectedEquipment: equipmentItems.filter(
       (item) => item.approvalStatus === "rejected",
     ).length,
-    rentals: rentalItems.length,
-    pendingPayments: rentalItems.filter(
-      (item) => item.paymentStatus === "pending",
-    ).length,
-    rentalDates: rentalItems.map((item) => item.bookingDate),
-    paidRentalDates: rentalItems
+    bookings: analytics.totalBookings,
+    completedRentals: analytics.completedRentals,
+    totalRevenueMinor: analytics.totalRevenueMinor,
+    currentMonthBookings: analytics.monthlyBookings.at(-1)?.count ?? 0,
+    rentalDates: bookings.map((item) => item.bookingDate),
+    paidRentalDates: bookings
       .filter((item) => item.paymentStatus === "paid")
       .map((item) => item.bookingDate),
-    paidRevenuePoints: rentalItems
+    paidRevenuePoints: bookings
       .filter((item) => item.paymentStatus === "paid")
       .map((item) => ({
         date: item.bookingDate,
@@ -132,22 +192,22 @@ export default function AdminOverviewClient() {
       setError(null);
       setOverview(null);
       try {
-        const [userPayload, equipmentPayload, rentalPayload] =
+        const [equipmentPayload, rentalPayload, analyticsPayload] =
           await Promise.all([
-            dashboardRequest("/api/admin/users?limit=1&offset=0", accessToken, {
-              signal: controller.signal,
-            }),
             dashboardRequest("/api/admin/equipment", accessToken, {
               signal: controller.signal,
             }),
             dashboardRequest("/api/admin/rentals", accessToken, {
               signal: controller.signal,
             }),
+            dashboardRequest("/api/admin/analytics", accessToken, {
+              signal: controller.signal,
+            }),
           ]);
         const result = parseOverview(
-          userPayload,
           equipmentPayload,
           rentalPayload,
+          analyticsPayload,
         );
         if (!result) {
           throw new Error("The admin services returned invalid overview data.");
@@ -185,14 +245,28 @@ export default function AdminOverviewClient() {
           icon: <Boxes aria-hidden="true" className="size-5" />,
           label: "Equipment listings",
           value: String(overview.equipment),
-          note: `${overview.pendingEquipment} awaiting review`,
+          note: `${overview.pendingEquipment} pending approval`,
         },
         {
           href: "/dashboard/all-rentals",
           icon: <CalendarDays aria-hidden="true" className="size-5" />,
-          label: "Rental records",
-          value: String(overview.rentals),
-          note: `${overview.pendingPayments} unpaid checkout${overview.pendingPayments === 1 ? "" : "s"}`,
+          label: "Total bookings",
+          value: String(overview.bookings),
+          note: `${overview.currentMonthBookings} this month`,
+        },
+        {
+          href: "/dashboard/all-rentals",
+          icon: <CalendarDays aria-hidden="true" className="size-5" />,
+          label: "Completed rentals",
+          value: String(overview.completedRentals),
+          note: "Bookings returned",
+        },
+        {
+          href: "/dashboard/all-rentals",
+          icon: <ShieldCheck aria-hidden="true" className="size-5" />,
+          label: "Total revenue",
+          value: formatCurrency(overview.totalRevenueMinor),
+          note: "Confirmed payments",
         },
       ]
     : [];
@@ -241,7 +315,7 @@ export default function AdminOverviewClient() {
       )}
       {overview && (
         <>
-          <section aria-label="Platform metrics" className="grid gap-4 md:grid-cols-3">
+          <section aria-label="Platform metrics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             {cards.map((card) => (
               <Link
                 className="group rounded-2xl border border-[#dde2ef] bg-white p-5 shadow-[0_16px_40px_-36px_rgba(23,33,61,0.65)] transition hover:-translate-y-1 hover:border-[#526ab7]/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#526ab7]"
