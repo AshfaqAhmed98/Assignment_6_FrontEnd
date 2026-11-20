@@ -167,7 +167,7 @@ export default function RegisterPage() {
     if (photoMode === "upload" && !photo) {
       setNotice({
         type: "error",
-        message: "Upload your profile photo to ImgBB before registering.",
+        message: "Upload your profile photo before registering.",
       });
       return;
     }
@@ -544,7 +544,7 @@ export default function RegisterPage() {
                     type="button"
                   >
                     <UploadCloud aria-hidden="true" className="size-3.5" />
-                    Upload to ImgBB
+                    Upload image
                   </button>
                 </div>
 
@@ -624,8 +624,8 @@ export default function RegisterPage() {
                       >
                         <UploadCloud aria-hidden="true" className="size-4" />
                         {isUploadingPhoto
-                          ? "Uploading to ImgBB..."
-                          : "Upload image to ImgBB"}
+                          ? "Uploading image..."
+                          : "Upload image"}
                       </button>
                     )}
                     {photo && (

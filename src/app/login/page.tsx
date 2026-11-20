@@ -72,6 +72,19 @@ function getResponseMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
+function getOAuthErrorMessage(error: string | null) {
+  const normalizedError = error?.trim().toLowerCase();
+
+  if (
+    normalizedError === "account_not_linked" ||
+    normalizedError === "unable_to_link_account"
+  ) {
+    return "An account with this email already exists. Sign in with the email and password you used to create it. Google sign-in cannot be linked to this account yet.";
+  }
+
+  return "Google sign-in could not be completed. Please try again or sign in with your email and password.";
+}
+
 async function readResponse(response: Response): Promise<unknown> {
   try {
     return await response.json();
@@ -108,9 +121,7 @@ export default function LoginPage() {
       window.setTimeout(() => {
         setNotice({
           type: "error",
-          message: oauthError
-            ? `Google sign-in failed: ${oauthError}`
-            : "Google sign-in could not be completed. Please try again.",
+          message: getOAuthErrorMessage(oauthError),
         });
       }, 0);
       url.searchParams.delete("oauth");

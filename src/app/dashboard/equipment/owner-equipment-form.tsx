@@ -492,8 +492,8 @@ export default function OwnerEquipmentForm({
                 Equipment image
               </h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Upload a clear PNG, JPG, WEBP, or GIF image. It will be hosted
-                securely through ImgBB.
+                Upload a clear PNG, JPG, WEBP, or GIF image. ImgBB is tried
+                first, with Cloudinary as a backup.
               </p>
               <ImageDropzone
                 className="mt-4 p-1"
