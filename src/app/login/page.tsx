@@ -482,7 +482,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-slate-600">
                   <input
                     checked={rememberMe}
@@ -492,19 +492,6 @@ export default function LoginPage() {
                   />
                   Remember me
                 </label>
-                <button
-                  className="rounded-sm text-sm font-semibold text-[#c94f1c] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
-                  onClick={() =>
-                    setNotice({
-                      type: "info",
-                      message:
-                        "Password reset is not available yet because email delivery has not been configured.",
-                    })
-                  }
-                  type="button"
-                >
-                  Forgot password?
-                </button>
               </div>
 
               <button

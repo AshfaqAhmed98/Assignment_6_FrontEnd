@@ -339,6 +339,7 @@ export function Navbar() {
       }
 
       setAuthState("unauthenticated");
+      window.dispatchEvent(new Event("gearrent:auth-changed"));
     } catch (error) {
       setAuthError(
         error instanceof Error ? error.message : "Could not sign out.",

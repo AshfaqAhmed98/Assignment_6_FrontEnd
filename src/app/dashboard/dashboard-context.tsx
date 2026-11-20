@@ -239,8 +239,19 @@ function AdminDashboardHero({ user }: { user: DashboardUser }) {
           </p>
         </div>
         <div className="flex min-w-64 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#a9bbff] text-sm font-black text-[#17213d]">
-            {getInitials(user.name)}
+          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#a9bbff] text-sm font-black text-[#17213d]">
+            {user.image ? (
+              <Image
+                alt=""
+                className="size-full object-cover"
+                height={44}
+                src={user.image}
+                unoptimized
+                width={44}
+              />
+            ) : (
+              getInitials(user.name)
+            )}
           </span>
           <span className="min-w-0">
             <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a9bbff]">

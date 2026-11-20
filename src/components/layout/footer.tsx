@@ -2,21 +2,55 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 const exploreLinks = [
   { label: "All Equipment", href: "/equipment" },
-  { label: "How It Works", href: "/how-it-works" },
-  { label: "About GearRent", href: "/about" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "Why GearRent", href: "/#why-choose-us-title" },
+  { label: "Customer Reviews", href: "/#customer-reviews-title" },
+  { label: "How It Works", href: "/#how-it-works-title" },
 ];
 
-const accountLinks = [
-  { label: "Sign In", href: "/login" },
-  { label: "Create Account", href: "/register" },
-  { label: "My Dashboard", href: "/dashboard" },
-];
+type DashboardRole = "Customer" | "Owner" | "Admin";
+type FooterAuthState =
+  | { status: "checking" }
+  | { status: "unauthenticated" }
+  | { status: "authenticated"; role: DashboardRole }
+  | { status: "error"; message: string };
+
+type FooterLink = { label: string; href: string };
+
+const apiBaseUrl = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+).replace(/\/$/, "");
+
+const accountLinksByRole: Record<DashboardRole, FooterLink[]> = {
+  Customer: [
+    { label: "My Dashboard", href: "/dashboard" },
+    { label: "My Rentals", href: "/dashboard/rentals" },
+    { label: "Saved Equipment", href: "/dashboard/favorites" },
+    { label: "My Profile", href: "/dashboard/profile" },
+  ],
+  Owner: [
+    { label: "My Dashboard", href: "/dashboard" },
+    { label: "My Equipment", href: "/dashboard/equipment" },
+    { label: "Rental Activity", href: "/dashboard/equipment-rentals" },
+    { label: "My Profile", href: "/dashboard/profile" },
+  ],
+  Admin: [
+    { label: "Admin Dashboard", href: "/dashboard" },
+    { label: "Manage Users", href: "/dashboard/users" },
+    { label: "All Equipment", href: "/dashboard/all-equipment" },
+    { label: "All Rentals", href: "/dashboard/all-rentals" },
+  ],
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 type SocialIconName =
   | "facebook"
@@ -109,7 +143,93 @@ function SocialIcon({ name }: { name: SocialIconName }) {
 }
 
 export function Footer() {
+  const pathname = usePathname();
   const reduceMotion = useReducedMotion() ?? false;
+  const [authState, setAuthState] = useState<FooterAuthState>({
+    status: "checking",
+  });
+
+  const refreshAuthState = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/auth/get-session`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        signal,
+      });
+      let payload: unknown;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error("The authentication server returned an invalid session.");
+      }
+
+      if (!response.ok) {
+        throw new Error("Could not check your sign-in status.");
+      }
+      if (payload === null) {
+        setAuthState({ status: "unauthenticated" });
+        return;
+      }
+      if (
+        !isRecord(payload) ||
+        !("session" in payload) ||
+        !("user" in payload) ||
+        (payload.session !== null && !isRecord(payload.session)) ||
+        (payload.user !== null && !isRecord(payload.user))
+      ) {
+        throw new Error("The authentication server returned an invalid session.");
+      }
+      if (payload.session === null || payload.user === null) {
+        setAuthState({ status: "unauthenticated" });
+        return;
+      }
+
+      const role = payload.user.role ?? "Customer";
+      if (role !== "Customer" && role !== "Owner" && role !== "Admin") {
+        throw new Error("The account has an unsupported role.");
+      }
+      setAuthState({ status: "authenticated", role });
+    } catch (error) {
+      if (signal?.aborted) {
+        return;
+      }
+      setAuthState({
+        status: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Could not check your sign-in status.",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const refreshTimeout = window.setTimeout(
+      () => void refreshAuthState(controller.signal),
+      0,
+    );
+
+    const handleAuthChange = () => {
+      void refreshAuthState(controller.signal);
+    };
+    window.addEventListener("gearrent:auth-changed", handleAuthChange);
+    return () => {
+      window.clearTimeout(refreshTimeout);
+      controller.abort();
+      window.removeEventListener("gearrent:auth-changed", handleAuthChange);
+    };
+  }, [pathname, refreshAuthState]);
+
+  const accountLinks =
+    authState.status === "authenticated"
+      ? accountLinksByRole[authState.role]
+      : authState.status === "unauthenticated"
+        ? [
+            { label: "Sign In", href: "/login" },
+            { label: "Create Account", href: "/register" },
+          ]
+        : [];
 
   return (
     <footer className="relative isolate overflow-hidden bg-[#08162d] text-white">
@@ -198,6 +318,27 @@ export function Footer() {
               Account
             </h3>
             <ul className="mt-5 grid gap-3">
+              {authState.status === "checking" && (
+                <li
+                  aria-live="polite"
+                  className="text-sm text-slate-300"
+                  role="status"
+                >
+                  Checking sign-in…
+                </li>
+              )}
+              {authState.status === "error" && (
+                <li className="text-sm text-rose-200" role="alert">
+                  {authState.message}{" "}
+                  <button
+                    className="underline underline-offset-2"
+                    onClick={() => void refreshAuthState()}
+                    type="button"
+                  >
+                    Try again
+                  </button>
+                </li>
+              )}
               {accountLinks.map((link) => (
                 <li key={link.href}>
                   <Link
