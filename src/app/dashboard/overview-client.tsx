@@ -18,6 +18,7 @@ import {
 import { motion, useReducedMotion } from "framer-motion";
 import { dashboardRequest } from "@/lib/dashboard-api";
 import { useDashboard } from "./dashboard-context";
+import AdminOverviewClient from "./admin-overview-client";
 import OwnerOverviewClient from "./owner-overview-client";
 import { PerformanceChart } from "./performance-chart";
 
@@ -254,39 +255,7 @@ export default function DashboardPage() {
   }
 
   if (user.role === "Admin") {
-    return (
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_85%_15%,rgba(255,210,119,0.22),transparent_28%),linear-gradient(135deg,#08162d,#10294c)] p-7 text-white sm:p-10"
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-        transition={{ duration: reduceMotion ? 0 : 0.45 }}
-      >
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-[#ffd277]">
-          <Sparkles aria-hidden="true" className="size-3.5" />
-          {user.role} workspace
-        </span>
-        <h2 className="mt-6 max-w-xl text-3xl font-black tracking-tight sm:text-4xl">
-          Welcome back, {firstName}.
-        </h2>
-        <p className="mt-3 max-w-xl text-sm leading-6 text-white/70 sm:text-base">
-          Your GearRent account is ready. Keep your personal details current so
-          the right information is available when you need it.
-        </p>
-        <Link
-          className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#ffd277] px-5 py-3 text-sm font-extrabold text-[#08162d] transition hover:-translate-y-0.5 hover:bg-[#ffbd5c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          href="/dashboard/profile"
-        >
-          Review your profile
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Link>
-        <span
-          aria-hidden="true"
-          className="absolute -bottom-16 -right-10 flex size-64 items-center justify-center rounded-full border border-white/10"
-        >
-          <span className="size-44 rounded-full border border-[#ffd277]/20" />
-        </span>
-      </motion.div>
-    );
+    return <AdminOverviewClient />;
   }
 
   return (

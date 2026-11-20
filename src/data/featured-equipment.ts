@@ -10,6 +10,7 @@ export type FeaturedEquipment = {
   rentalType?: RentalType;
   image: string;
   description: string;
+  isDemo?: boolean;
 };
 
 const rentalPeriodDays: Record<RentalType, number> = {
@@ -56,11 +57,12 @@ export function isFeaturedEquipment(value: unknown): value is FeaturedEquipment 
       item.rentalType === "weekly" ||
       item.rentalType === "monthly") &&
     typeof item.image === "string" &&
-    typeof item.description === "string"
+    typeof item.description === "string" &&
+    (!("isDemo" in item) || typeof item.isDemo === "boolean")
   );
 }
 
-export const featuredEquipment: FeaturedEquipment[] = [
+const starterFeaturedEquipment: FeaturedEquipment[] = [
   {
     id: "professional-drill-kit",
     name: "Professional Drill Kit",
@@ -101,6 +103,9 @@ export const featuredEquipment: FeaturedEquipment[] = [
     description:
       "A reliable portable generator for job sites, events, and temporary power requirements.",
   },
+];
+
+export const featuredDemoEquipment: FeaturedEquipment[] = [
   {
     id: "pressure-washer",
     name: "Pressure Washer",
@@ -110,6 +115,7 @@ export const featuredEquipment: FeaturedEquipment[] = [
     image: "/images/tools-rental-banner.jpg",
     description:
       "A high-pressure washer for vehicles, patios, building exteriors, and equipment cleaning.",
+    isDemo: true,
   },
   {
     id: "rotary-cutter",
@@ -120,5 +126,11 @@ export const featuredEquipment: FeaturedEquipment[] = [
     image: "/images/construction-team-banner.jpg",
     description:
       "A heavy-duty rotary cutter for clearing overgrowth and maintaining large outdoor areas.",
+    isDemo: true,
   },
+];
+
+export const featuredEquipment: FeaturedEquipment[] = [
+  ...starterFeaturedEquipment,
+  ...featuredDemoEquipment,
 ];

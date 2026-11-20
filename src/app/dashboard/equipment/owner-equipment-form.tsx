@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
   Check,
@@ -13,6 +13,7 @@ import {
   Upload,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 import { useDashboard } from "../dashboard-context";
 import {
   equipmentCategories,
@@ -80,6 +81,12 @@ export default function OwnerEquipmentForm({
 }) {
   const { accessToken, user } = useDashboard();
   const router = useRouter();
+  const returnPath =
+    user.role === "Admin"
+      ? "/dashboard/all-equipment"
+      : "/dashboard/equipment";
+  const returnLabel =
+    user.role === "Admin" ? "All Equipment" : "My Equipment";
   const [values, setValues] = useState(initialValues);
   const [isLoading, setIsLoading] = useState(Boolean(equipmentId));
   const [isSaving, setIsSaving] = useState(false);
@@ -145,9 +152,7 @@ export default function OwnerEquipmentForm({
     setValues((current) => ({ ...current, [key]: value }));
   }
 
-  async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
+  async function handleImageUpload(file: File | undefined) {
     if (!file) {
       return;
     }
@@ -214,7 +219,7 @@ export default function OwnerEquipmentForm({
       if (!getPayloadItem(result)) {
         throw new Error("The equipment service returned invalid item data.");
       }
-      router.push("/dashboard/equipment");
+      router.push(returnPath);
       router.refresh();
     } catch (error) {
       setFormError(getErrorMessage(error));
@@ -245,7 +250,7 @@ export default function OwnerEquipmentForm({
         <p>Could not load this equipment: {loadError}</p>
         <Link
           className="mt-4 inline-flex font-extrabold underline underline-offset-4"
-          href="/dashboard/equipment"
+          href={returnPath}
         >
           Return to My Equipment
         </Link>
@@ -264,13 +269,13 @@ export default function OwnerEquipmentForm({
         <div>
           <Link
             className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 transition hover:text-[#c94f1c]"
-            href="/dashboard/equipment"
+            href={returnPath}
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
-            My Equipment
+            {returnLabel}
           </Link>
           <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.16em] text-[#c94f1c]">
-            Owner workspace
+              {user.role === "Admin" ? "Admin review" : "Owner workspace"}
           </p>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-[#08162d]">
             {equipmentId ? "Update equipment" : "Add equipment"}
@@ -490,45 +495,59 @@ export default function OwnerEquipmentForm({
                 Upload a clear PNG, JPG, WEBP, or GIF image. It will be hosted
                 securely through ImgBB.
               </p>
-              <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
-                {values.image ? (
-                  <Image
-                    alt={`${values.name || "Equipment"} preview`}
-                    className="object-cover"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 320px"
-                    src={values.image}
-                    unoptimized
+              <ImageDropzone
+                className="mt-4 p-1"
+                disabled={isUploading || isSaving}
+                onFileDrop={(file) => void handleImageUpload(file)}
+              >
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                  {values.image ? (
+                    <Image
+                      alt={`${values.name || "Equipment"} preview`}
+                      className="object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 320px"
+                      src={values.image}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
+                      <ImagePlus aria-hidden="true" className="size-9" />
+                      <span className="text-xs font-bold">Image preview</span>
+                    </div>
+                  )}
+                </div>
+                <label className="mt-4 flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e96a32]/25 bg-[#fff4ec] px-4 text-sm font-extrabold text-[#b94a20] transition hover:bg-[#ffebdf] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]">
+                  {isUploading ? (
+                    <LoaderCircle
+                      aria-hidden="true"
+                      className="size-4 animate-spin"
+                    />
+                  ) : (
+                    <Upload aria-hidden="true" className="size-4" />
+                  )}
+                  {isUploading
+                    ? "Uploading image…"
+                    : values.image
+                      ? "Replace image"
+                      : "Choose image"}
+                  <input
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="sr-only"
+                    disabled={isUploading || isSaving}
+                    onChange={(event) => {
+                      const input = event.currentTarget;
+                      const file = input.files?.[0];
+                      input.value = "";
+                      void handleImageUpload(file);
+                    }}
+                    type="file"
                   />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
-                    <ImagePlus aria-hidden="true" className="size-9" />
-                    <span className="text-xs font-bold">Image preview</span>
-                  </div>
-                )}
-              </div>
-              <label className="mt-4 flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e96a32]/25 bg-[#fff4ec] px-4 text-sm font-extrabold text-[#b94a20] transition hover:bg-[#ffebdf] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]">
-                {isUploading ? (
-                  <LoaderCircle
-                    aria-hidden="true"
-                    className="size-4 animate-spin"
-                  />
-                ) : (
-                  <Upload aria-hidden="true" className="size-4" />
-                )}
-                {isUploading
-                  ? "Uploading image…"
-                  : values.image
-                    ? "Replace image"
-                    : "Choose image"}
-                <input
-                  accept="image/png,image/jpeg,image/webp,image/gif"
-                  className="sr-only"
-                  disabled={isUploading || isSaving}
-                  onChange={(event) => void handleImageUpload(event)}
-                  type="file"
-                />
-              </label>
+                </label>
+                <p className="mt-2 text-center text-[11px] font-medium text-slate-400">
+                  Or drag and drop an image here.
+                </p>
+              </ImageDropzone>
               {uploadError && (
                 <p
                   aria-live="polite"
@@ -547,7 +566,9 @@ export default function OwnerEquipmentForm({
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
               <h3 className="text-sm font-black text-[#08162d]">
-                Owner information
+                {user.role === "Admin"
+                  ? "Administrator session"
+                  : "Owner information"}
               </h3>
               <div className="mt-4 rounded-xl bg-[#f7f9fc] p-4">
                 <p className="text-sm font-extrabold text-[#08162d]">
@@ -558,7 +579,9 @@ export default function OwnerEquipmentForm({
                 </p>
                 <p className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-emerald-700">
                   <Check aria-hidden="true" className="size-3.5" />
-                  Linked to your verified owner account
+                  {user.role === "Admin"
+                    ? "The listing owner will remain unchanged"
+                    : "Linked to your verified owner account"}
                 </p>
               </div>
               <p className="mt-3 text-xs leading-5 text-slate-500">
@@ -582,7 +605,7 @@ export default function OwnerEquipmentForm({
         <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
           <Link
             className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 px-5 text-sm font-extrabold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
-            href="/dashboard/equipment"
+            href={returnPath}
           >
             Cancel
           </Link>

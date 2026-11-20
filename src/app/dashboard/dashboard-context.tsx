@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowUpRight,
   BarChart3,
+  ClipboardCheck,
   Boxes,
   Building2,
   CalendarDays,
@@ -24,6 +25,7 @@ import {
   LoaderCircle,
   PackagePlus,
   ShieldCheck,
+  UsersRound,
   Wrench,
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -207,6 +209,190 @@ function OwnerDashboardHero({ user }: { user: DashboardUser }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function AdminDashboardHero({ user }: { user: DashboardUser }) {
+  return (
+    <section className="relative isolate overflow-hidden bg-[#17213d] pb-10 pt-28 text-white sm:pb-12">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-32 size-[26rem] rounded-full border border-[#8da9ff]/15"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-4 -top-16 size-[18rem] rounded-full border border-[#8da9ff]/20"
+      />
+      <div className="relative mx-auto flex max-w-[1480px] flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-[#a9bbff]">
+            <ShieldCheck aria-hidden="true" className="size-4" />
+            GearRent / Platform administration
+          </p>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">
+            The platform,
+            <span className="block text-[#a9bbff]">at a glance.</span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">
+            Review accounts, keep the equipment catalog healthy, and monitor
+            rentals from your private control room.
+          </p>
+        </div>
+        <div className="flex min-w-64 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#a9bbff] text-sm font-black text-[#17213d]">
+            {getInitials(user.name)}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a9bbff]">
+              Administrator
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-extrabold text-white">
+              {user.name}
+            </span>
+          </span>
+          <ClipboardCheck
+            aria-hidden="true"
+            className="ml-auto size-5 shrink-0 text-white/40"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AdminDashboardNavigation({
+  pathname,
+  reduceMotion,
+  user,
+}: {
+  pathname: string;
+  reduceMotion: boolean;
+  user: DashboardUser;
+}) {
+  return (
+    <aside
+      aria-label="Admin control room navigation"
+      className="rounded-[1.75rem] bg-[#17213d] p-4 text-white shadow-[0_24px_70px_-45px_rgba(23,33,61,0.8)] sm:p-5 lg:sticky lg:top-24"
+    >
+      <div className="flex items-center gap-3 border-b border-white/10 px-2 pb-5">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-[#a9bbff] text-[#17213d]">
+          <ShieldCheck aria-hidden="true" className="size-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-black">Control room</span>
+          <span className="mt-0.5 block truncate text-xs font-medium text-white/50">
+            {user.email}
+          </span>
+        </span>
+      </div>
+
+      <nav aria-label="Admin dashboard" className="mt-5 grid gap-1.5">
+        <AdminDashboardNavLink
+          active={pathname === "/dashboard"}
+          href="/dashboard"
+          icon={<LayoutDashboard aria-hidden="true" className="size-[18px]" />}
+          label="Overview"
+          reduceMotion={reduceMotion}
+        />
+        <AdminDashboardNavLink
+          active={pathname.startsWith("/dashboard/users")}
+          href="/dashboard/users"
+          icon={<UsersRound aria-hidden="true" className="size-[18px]" />}
+          label="All users"
+          reduceMotion={reduceMotion}
+        />
+        <AdminDashboardNavLink
+          active={
+            pathname.startsWith("/dashboard/all-equipment") ||
+            pathname.startsWith("/dashboard/equipment/")
+          }
+          href="/dashboard/all-equipment"
+          icon={<Boxes aria-hidden="true" className="size-[18px]" />}
+          label="All equipment"
+          reduceMotion={reduceMotion}
+        />
+        <AdminDashboardNavLink
+          active={pathname.startsWith("/dashboard/all-rentals")}
+          href="/dashboard/all-rentals"
+          icon={<ClipboardList aria-hidden="true" className="size-[18px]" />}
+          label="All rentals"
+          reduceMotion={reduceMotion}
+        />
+        <AdminDashboardNavLink
+          active={pathname === "/dashboard/profile"}
+          href="/dashboard/profile"
+          icon={<CircleUserRound aria-hidden="true" className="size-[18px]" />}
+          label="My profile"
+          reduceMotion={reduceMotion}
+        />
+      </nav>
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#a9bbff]">
+          Platform health
+        </p>
+        <p className="mt-2 text-xs leading-5 text-white/60">
+          Manage accounts carefully. Payment records remain tied to Stripe.
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+function AdminDashboardNavLink({
+  href,
+  label,
+  active,
+  icon,
+  reduceMotion,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  icon: ReactNode;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      animate={{ x: 0 }}
+      whileHover={reduceMotion ? undefined : { x: 3 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18 }}
+    >
+      <Link
+        aria-current={active ? "page" : undefined}
+        className={`group relative flex h-12 items-center justify-between overflow-hidden rounded-xl px-3 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a9bbff] ${
+          active ? "text-[#17213d]" : "text-white/65 hover:text-white"
+        }`}
+        href={href}
+      >
+        {active ? (
+          <motion.span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-xl bg-[#a9bbff]"
+            layoutId="admin-dashboard-active-navigation"
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 420, damping: 34 }
+            }
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-xl bg-white/[0.07] opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        )}
+        <span className="relative z-10 flex items-center gap-3">
+          {icon}
+          {label}
+        </span>
+        {active && (
+          <ArrowUpRight
+            aria-hidden="true"
+            className="relative z-10 size-4"
+          />
+        )}
+      </Link>
+    </motion.div>
   );
 }
 
@@ -423,36 +609,61 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const ownerOnlyPath =
     pathname.startsWith("/dashboard/equipment") ||
     pathname.startsWith("/dashboard/equipment-rentals");
+  const adminOnlyPath =
+    pathname.startsWith("/dashboard/users") ||
+    pathname.startsWith("/dashboard/all-equipment") ||
+    pathname.startsWith("/dashboard/all-rentals");
+  const adminEquipmentDetailPath =
+    pathname.startsWith("/dashboard/equipment/") &&
+    !pathname.startsWith("/dashboard/equipment/new");
   const isOwnerDashboard =
     state.status === "ready" && state.user.role === "Owner";
+  const isAdminDashboard =
+    state.status === "ready" && state.user.role === "Admin";
 
   useEffect(() => {
     if (
       state.status === "ready" &&
       ((customerOnlyPath && state.user.role !== "Customer") ||
-        (ownerOnlyPath && state.user.role !== "Owner"))
+        (ownerOnlyPath &&
+          state.user.role !== "Owner" &&
+          !(state.user.role === "Admin" && adminEquipmentDetailPath)) ||
+        (adminOnlyPath && state.user.role !== "Admin"))
     ) {
       router.replace("/dashboard/profile");
     }
-  }, [customerOnlyPath, ownerOnlyPath, router, state]);
+  }, [
+    adminEquipmentDetailPath,
+    adminOnlyPath,
+    customerOnlyPath,
+    ownerOnlyPath,
+    router,
+    state,
+  ]);
 
   const roleCanViewPage =
     state.status === "ready" &&
-    (customerOnlyPath
-      ? state.user.role === "Customer"
-      : ownerOnlyPath
-        ? state.user.role === "Owner"
-        : true);
+    (!customerOnlyPath || state.user.role === "Customer") &&
+    (!ownerOnlyPath ||
+      state.user.role === "Owner" ||
+      (state.user.role === "Admin" && adminEquipmentDetailPath)) &&
+    (!adminOnlyPath || state.user.role === "Admin");
   const showProtectedPage = state.status === "ready" && roleCanViewPage;
 
   return (
     <div
       className={`min-h-screen ${
-        isOwnerDashboard ? "bg-[#f4f0e7]" : "bg-[#f5f7fb]"
+        isOwnerDashboard
+          ? "bg-[#f4f0e7]"
+          : isAdminDashboard
+            ? "bg-[#f0f2f8]"
+            : "bg-[#f5f7fb]"
       }`}
     >
       <Navbar />
-      {isOwnerDashboard ? (
+      {isAdminDashboard ? (
+        <AdminDashboardHero user={state.user} />
+      ) : isOwnerDashboard ? (
         <OwnerDashboardHero user={state.user} />
       ) : (
         <section className="relative overflow-hidden bg-[radial-gradient(circle_at_78%_14%,rgba(233,106,50,0.2),transparent_26%),linear-gradient(135deg,#08162d_0%,#10294c_58%,#08162d_100%)] pb-20 pt-32 text-white">
@@ -515,7 +726,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
       <main
         className={
-          isOwnerDashboard
+          isAdminDashboard || isOwnerDashboard
             ? "relative mx-auto max-w-[1480px] px-4 pb-16 pt-8 sm:px-6 lg:px-8"
             : "relative mx-auto -mt-10 max-w-7xl px-4 pb-20 sm:px-6 lg:px-8"
         }
@@ -548,7 +759,18 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           <DashboardContext.Provider
             value={{ ...state, refreshUser }}
           >
-            {isOwnerDashboard ? (
+            {isAdminDashboard ? (
+              <div className="grid items-start gap-5 lg:grid-cols-[270px_minmax(0,1fr)]">
+                <AdminDashboardNavigation
+                  pathname={pathname}
+                  reduceMotion={reduceMotion}
+                  user={state.user}
+                />
+                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-[#dde2ef] bg-[#fcfcff] p-5 shadow-[0_24px_70px_-55px_rgba(23,33,61,0.55)] sm:p-8">
+                  <DashboardRouteTransition>{children}</DashboardRouteTransition>
+                </section>
+              </div>
+            ) : isOwnerDashboard ? (
               <div className="grid items-start gap-5 lg:grid-cols-[270px_minmax(0,1fr)]">
                 <OwnerDashboardNavigation
                   pathname={pathname}

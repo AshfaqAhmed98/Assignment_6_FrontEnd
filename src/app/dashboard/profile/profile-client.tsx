@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Check,
   ImagePlus,
@@ -11,6 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useDashboard } from "../dashboard-context";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 import {
   apiBaseUrl,
   getResponseMessage,
@@ -40,10 +41,27 @@ export default function ProfilePage() {
   ].filter(Boolean).length;
   const profileCompletion = Math.round((completedProfileFields / 5) * 100);
 
-  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    const file = input.files?.[0];
+  async function handlePhotoChange(file: File | undefined) {
     if (!file) {
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setNotice({
+        type: "error",
+        message: "Profile images must be 5 MB or smaller.",
+      });
+      return;
+    }
+    if (
+      !["image/gif", "image/jpeg", "image/png", "image/webp"].includes(
+        file.type,
+      )
+    ) {
+      setNotice({
+        type: "error",
+        message: "Choose a PNG, JPG, WEBP, or GIF image.",
+      });
       return;
     }
 
@@ -84,7 +102,6 @@ export default function ProfilePage() {
             : "Could not connect to the image upload service.",
       });
     } finally {
-      input.value = "";
       setIsUploading(false);
     }
   }
@@ -321,35 +338,52 @@ export default function ProfilePage() {
             </p>
           </div>
           <p className="text-sm font-extrabold text-[#08162d]">Profile Image</p>
-          <div className="mx-auto mt-4 flex size-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#08162d] text-[#ffd277] shadow-[0_8px_24px_rgba(8,22,45,0.15)]">
-            {image ? (
-              <Image
-                alt="Profile preview"
-                className="size-full object-cover"
-                height={112}
-                src={image}
-                unoptimized
-                width={112}
+          <ImageDropzone
+            className="mt-4 p-1"
+            disabled={isUploading || isSaving}
+            onFileDrop={(file) => void handlePhotoChange(file)}
+          >
+            <div className="mx-auto flex size-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#08162d] text-[#ffd277] shadow-[0_8px_24px_rgba(8,22,45,0.15)]">
+              {image ? (
+                <Image
+                  alt="Profile preview"
+                  className="size-full object-cover"
+                  height={112}
+                  src={image}
+                  unoptimized
+                  width={112}
+                />
+              ) : (
+                <UserRound aria-hidden="true" className="size-10" />
+              )}
+            </div>
+            <label className="mt-5 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e96a32]/30 bg-white px-3 text-center text-xs font-extrabold text-[#c94f1c] transition hover:bg-[#fff8e7] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]">
+              {isUploading ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-4 animate-spin"
+                />
+              ) : (
+                <ImagePlus aria-hidden="true" className="size-4" />
+              )}
+              {isUploading ? "Uploading…" : "Upload a new image"}
+              <input
+                accept="image/gif,image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={isUploading || isSaving}
+                onChange={(event) => {
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  input.value = "";
+                  void handlePhotoChange(file);
+                }}
+                type="file"
               />
-            ) : (
-              <UserRound aria-hidden="true" className="size-10" />
-            )}
-          </div>
-          <label className="mt-5 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e96a32]/30 bg-white px-3 text-center text-xs font-extrabold text-[#c94f1c] transition hover:bg-[#fff8e7] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]">
-            {isUploading ? (
-              <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-            ) : (
-              <ImagePlus aria-hidden="true" className="size-4" />
-            )}
-            {isUploading ? "Uploading…" : "Upload a new image"}
-            <input
-              accept="image/gif,image/jpeg,image/png,image/webp"
-              className="sr-only"
-              disabled={isUploading || isSaving}
-              onChange={(event) => void handlePhotoChange(event)}
-              type="file"
-            />
-          </label>
+            </label>
+            <p className="mt-2 text-center text-[11px] font-medium text-slate-400">
+              Or drag and drop an image here.
+            </p>
+          </ImageDropzone>
           <label
             className="mt-4 block text-xs font-bold uppercase tracking-wide text-slate-500"
             htmlFor="dashboard-profile-image"

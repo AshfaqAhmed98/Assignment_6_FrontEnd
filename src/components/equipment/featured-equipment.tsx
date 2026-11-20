@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
+  featuredDemoEquipment,
   featuredEquipment,
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
@@ -53,11 +54,15 @@ export function FeaturedEquipment() {
   );
   const isShowingDemoItems =
     state.status === "success" && state.items.length === 0;
+  const supplementalDemoItems =
+    state.status === "success" && !isShowingDemoItems
+      ? featuredDemoEquipment.slice(0, Math.max(0, 6 - state.items.length))
+      : [];
   const displayedItems =
     state.status === "success"
       ? isShowingDemoItems
         ? featuredEquipment
-        : state.items
+        : [...state.items, ...supplementalDemoItems]
       : [];
   const equipmentRows: FeaturedEquipmentItem[][] = [];
   for (let index = 0; index < displayedItems.length; index += 3) {
@@ -261,6 +266,10 @@ export function FeaturedEquipment() {
                   return (
                     <motion.article
                       className={`group relative h-[330px] min-w-0 flex-[1_1_0%] rounded-2xl bg-[linear-gradient(115deg,#ffd277_0%,#e96a32_55%,#08162d_100%)] p-[2px] shadow-[0_4px_14px_rgba(8,22,45,0.12)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(233,106,50,0.16)] sm:h-[360px] xl:h-[380px] ${
+                        row.length === 1
+                          ? "sm:max-w-[calc(33.333%_-_0.833rem)]"
+                          : ""
+                      } ${
                         activeEquipmentId === item.id ? "col-span-2" : ""
                       }`}
                       initial={{ opacity: 0, y: reduceMotion ? 0 : -24 }}
@@ -346,7 +355,7 @@ export function FeaturedEquipment() {
                               </span>
                               <span className="ml-1 text-xs">/ day</span>
                             </p>
-                            {isShowingDemoItems ? (
+                            {isShowingDemoItems || item.isDemo ? (
                               <span className="rounded-md border border-[#ffd277] bg-[#fff8e7] px-2 py-1.5 text-xs font-bold text-[#7a4b00]">
                                 Demo listing
                               </span>

@@ -53,7 +53,13 @@ const statusClassNames = {
 };
 
 export default function OwnerEquipmentDetailsClient({ id }: { id: string }) {
-  const { accessToken } = useDashboard();
+  const { accessToken, user } = useDashboard();
+  const returnPath =
+    user.role === "Admin"
+      ? "/dashboard/all-equipment"
+      : "/dashboard/equipment";
+  const returnLabel =
+    user.role === "Admin" ? "All Equipment" : "My Equipment";
   const [state, setState] = useState<DetailsState>({ status: "loading" });
 
   useEffect(() => {
@@ -109,9 +115,9 @@ export default function OwnerEquipmentDetailsClient({ id }: { id: string }) {
         <p>Could not load this equipment: {state.message}</p>
         <Link
           className="mt-4 inline-flex font-extrabold underline underline-offset-4"
-          href="/dashboard/equipment"
+          href={returnPath}
         >
-          Return to My Equipment
+          Return to {returnLabel}
         </Link>
       </div>
     );
@@ -124,13 +130,13 @@ export default function OwnerEquipmentDetailsClient({ id }: { id: string }) {
         <div>
           <Link
             className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 transition hover:text-[#c94f1c]"
-            href="/dashboard/equipment"
+            href={returnPath}
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
-            My Equipment
+            {returnLabel}
           </Link>
           <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.16em] text-[#c94f1c]">
-            Listing details
+            {user.role === "Admin" ? "Admin review" : "Listing details"}
           </p>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-[#08162d]">
             {item.name}

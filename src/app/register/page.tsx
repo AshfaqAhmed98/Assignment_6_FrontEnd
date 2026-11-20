@@ -22,6 +22,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { requestAuthAccessToken } from "@/lib/auth-token";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 
 type RegistrationNotice = {
   type: "success" | "error" | "info";
@@ -70,6 +71,35 @@ export default function RegisterPage() {
     return () =>
       motionPreference.removeEventListener("change", updateVideoPreference);
   }, []);
+
+  function selectPhotoFile(file: File | null) {
+    const allowedTypes = [
+      "image/gif",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+    if (file && !allowedTypes.includes(file.type)) {
+      setPhotoFile(null);
+      setNotice({
+        type: "error",
+        message: "Choose a PNG, JPG, WEBP, or GIF image.",
+      });
+      return;
+    }
+    if (file && file.size > 5 * 1024 * 1024) {
+      setPhotoFile(null);
+      setNotice({
+        type: "error",
+        message: "Profile images must be 5 MB or smaller.",
+      });
+      return;
+    }
+
+    setPhotoFile(file);
+    setPhoto("");
+    setNotice(null);
+  }
 
   async function uploadPhoto() {
     if (!photoFile) {
@@ -541,7 +571,11 @@ export default function RegisterPage() {
                     </span>
                   </label>
                 ) : (
-                  <div className="mt-3">
+                  <ImageDropzone
+                    className="mt-3 p-1"
+                    disabled={isUploadingPhoto || isSubmitting}
+                    onFileDrop={selectPhotoFile}
+                  >
                     <label
                       className="group flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-4 text-center transition-colors hover:border-[#e96a32] hover:bg-orange-50/40 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]"
                       htmlFor="register-photo-upload"
@@ -555,39 +589,19 @@ export default function RegisterPage() {
                       <span className="mt-1 text-xs text-slate-500">
                         PNG, JPG, WEBP, or GIF · Max 5 MB
                       </span>
+                      <span className="mt-1 text-xs font-medium text-[#c94f1c]">
+                        Drop a photo here, or click to choose.
+                      </span>
                       <input
-                        accept="image/*"
+                        accept="image/gif,image/jpeg,image/png,image/webp"
                         className="sr-only"
+                        disabled={isUploadingPhoto || isSubmitting}
                         id="register-photo-upload"
                         onChange={(event) => {
-                          const file = event.target.files?.[0] ?? null;
-                          const allowedTypes = [
-                            "image/gif",
-                            "image/jpeg",
-                            "image/png",
-                            "image/webp",
-                          ];
-                          if (file && !allowedTypes.includes(file.type)) {
-                            setPhotoFile(null);
-                            setNotice({
-                              type: "error",
-                              message: "Choose a PNG, JPG, WEBP, or GIF image.",
-                            });
-                            event.currentTarget.value = "";
-                            return;
-                          }
-                          if (file && file.size > 5 * 1024 * 1024) {
-                            setPhotoFile(null);
-                            setNotice({
-                              type: "error",
-                              message: "Profile images must be 5 MB or smaller.",
-                            });
-                            event.currentTarget.value = "";
-                            return;
-                          }
-                          setPhotoFile(file);
-                          setPhoto("");
-                          setNotice(null);
+                          const input = event.currentTarget;
+                          const file = input.files?.[0] ?? null;
+                          input.value = "";
+                          selectPhotoFile(file);
                         }}
                         type="file"
                       />
@@ -604,7 +618,7 @@ export default function RegisterPage() {
                     {photoFile && !photo && (
                       <button
                         className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#e96a32] bg-white px-4 text-sm font-bold text-[#c94f1c] transition-colors hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32] disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={isUploadingPhoto}
+                        disabled={isUploadingPhoto || isSubmitting}
                         onClick={uploadPhoto}
                         type="button"
                       >
@@ -619,7 +633,7 @@ export default function RegisterPage() {
                         Profile photo uploaded and ready.
                       </p>
                     )}
-                  </div>
+                  </ImageDropzone>
                 )}
               </fieldset>
 
