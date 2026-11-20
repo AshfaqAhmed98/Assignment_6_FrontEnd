@@ -521,7 +521,7 @@ export default function EquipmentListClient() {
                 <input
                   className="equipment-search-input h-12 w-full rounded-[15px] border-0 bg-[#ccc] p-4 pl-11 text-sm font-medium normal-case tracking-normal text-[#122035] shadow-[inset_2px_5px_10px_rgba(0,0,0,0.3)] outline-none transition duration-300 ease-in-out placeholder:text-slate-500"
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Name or location"
+                  placeholder="Title, category, or location"
                   type="search"
                   value={search}
                 />
