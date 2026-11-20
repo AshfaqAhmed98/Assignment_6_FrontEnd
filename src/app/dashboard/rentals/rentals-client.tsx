@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   LoaderCircle,
   Search,
   SlidersHorizontal,
@@ -89,6 +91,8 @@ export default function MyRentalsPage() {
     "all" | CustomerBooking["bookingStatus"]
   >("all");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -138,6 +142,8 @@ export default function MyRentalsPage() {
           return matchesStatus && matchesSearch;
         })
       : [];
+  const pageCount = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+  const pageItems = filteredItems.slice((page - 1) * pageSize, page * pageSize);
   const statusFilters = [
     { value: "all", label: "All" },
     { value: "upcoming", label: "Upcoming" },
@@ -195,7 +201,10 @@ export default function MyRentalsPage() {
               />
               <input
                 className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium text-[#08162d] outline-none transition focus:border-[#e96a32] focus:bg-white focus:ring-4 focus:ring-[#e96a32]/10"
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search equipment"
                 type="search"
                 value={search}
@@ -219,7 +228,10 @@ export default function MyRentalsPage() {
                       : "text-slate-500 hover:text-[#08162d]"
                   }`}
                   key={filter.value}
-                  onClick={() => setStatusFilter(filter.value)}
+                  onClick={() => {
+                    setStatusFilter(filter.value);
+                    setPage(1);
+                  }}
                   type="button"
                 >
                   {filter.label}
@@ -292,7 +304,7 @@ export default function MyRentalsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {filteredItems.map((booking) => (
+                {pageItems.map((booking) => (
                   <tr className="transition-colors hover:bg-slate-50" key={booking.id}>
                     <td className="px-4 py-4 font-bold text-[#08162d]">
                       {booking.equipmentName}
@@ -326,6 +338,43 @@ export default function MyRentalsPage() {
               </tbody>
             </table>
           </div>
+          {pageCount > 1 && (
+            <nav
+              aria-label="Booking history pages"
+              className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-4 py-3"
+            >
+              <p aria-live="polite" className="text-xs font-semibold text-slate-500">
+                Showing {(page - 1) * pageSize + 1}–
+                {Math.min(page * pageSize, filteredItems.length)} of{" "}
+                {filteredItems.length} bookings
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  aria-label="Previous bookings page"
+                  className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-[#08162d] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={page <= 1}
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  type="button"
+                >
+                  <ChevronLeft aria-hidden="true" className="size-4" />
+                </button>
+                <span className="min-w-20 text-center text-xs font-bold text-slate-600">
+                  Page {page} of {pageCount}
+                </span>
+                <button
+                  aria-label="Next bookings page"
+                  className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-[#08162d] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={page >= pageCount}
+                  onClick={() =>
+                    setPage((current) => Math.min(pageCount, current + 1))
+                  }
+                  type="button"
+                >
+                  <ChevronRight aria-hidden="true" className="size-4" />
+                </button>
+              </div>
+            </nav>
+          )}
         </div>
       )}
     </div>

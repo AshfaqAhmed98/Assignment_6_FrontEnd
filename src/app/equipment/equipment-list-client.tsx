@@ -9,6 +9,8 @@ import {
   ArrowUp,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   MapPin,
   PackageCheck,
   Search,
@@ -45,6 +47,8 @@ type ListingState = {
   items: EquipmentListingItem[];
   categories: string[];
   total: number;
+  page: number;
+  pageSize: number;
   message: string | null;
 };
 type DropdownOption = {
@@ -105,7 +109,13 @@ function isEquipmentListingItem(value: unknown): value is EquipmentListingItem {
 
 function isListingResponse(
   value: unknown,
-): value is { items: EquipmentListingItem[]; categories: string[]; total: number } {
+): value is {
+  items: EquipmentListingItem[];
+  categories: string[];
+  total: number;
+  page: number;
+  pageSize: number;
+} {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -117,7 +127,13 @@ function isListingResponse(
     value.categories.every((category) => typeof category === "string") &&
     "total" in value &&
     typeof value.total === "number" &&
-    Number.isInteger(value.total)
+    Number.isInteger(value.total) &&
+    "page" in value &&
+    typeof value.page === "number" &&
+    Number.isInteger(value.page) &&
+    "pageSize" in value &&
+    typeof value.pageSize === "number" &&
+    Number.isInteger(value.pageSize)
   );
 }
 
@@ -355,6 +371,7 @@ export default function EquipmentListClient() {
   const [availability, setAvailability] =
     useState<AvailabilityFilter>("all");
   const [sort, setSort] = useState<SortOption>("recently-added");
+  const [page, setPage] = useState(1);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(
     null,
   );
@@ -363,6 +380,8 @@ export default function EquipmentListClient() {
     items: [],
     categories: [],
     total: 0,
+    page: 1,
+    pageSize: 12,
     message: null,
   });
 
@@ -373,6 +392,8 @@ export default function EquipmentListClient() {
         rentalType,
         availability,
         sort,
+        page: String(page),
+        pageSize: "12",
       });
       if (search.trim()) params.set("search", search.trim());
       if (category) params.set("category", category);
@@ -409,6 +430,8 @@ export default function EquipmentListClient() {
           items: payload.items,
           categories: payload.categories,
           total: payload.total,
+          page: payload.page,
+          pageSize: payload.pageSize,
           message: null,
         });
       } catch (error) {
@@ -439,7 +462,10 @@ export default function EquipmentListClient() {
     maxPrice,
     availability,
     sort,
+    page,
   ]);
+
+  const pageCount = Math.max(1, Math.ceil(state.total / state.pageSize));
 
   return (
     <div className="min-h-screen bg-[#f7f5f0] text-[#122035]">
@@ -520,7 +546,10 @@ export default function EquipmentListClient() {
                 />
                 <input
                   className="equipment-search-input h-12 w-full rounded-[15px] border-0 bg-[#ccc] p-4 pl-11 text-sm font-medium normal-case tracking-normal text-[#122035] shadow-[inset_2px_5px_10px_rgba(0,0,0,0.3)] outline-none transition duration-300 ease-in-out placeholder:text-slate-500"
-                  onChange={(event) => setSearch(event.target.value)}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    setPage(1);
+                  }}
                   placeholder="Title, category, or location"
                   type="search"
                   value={search}
@@ -531,7 +560,10 @@ export default function EquipmentListClient() {
             <AnimatedDropdown
               id="category-filter"
               label="Category"
-              onChange={setCategory}
+              onChange={(value) => {
+                setCategory(value);
+                setPage(1);
+              }}
               onOpenChange={(open) =>
                 setOpenFilterDropdown(open ? "category-filter" : null)
               }
@@ -552,6 +584,7 @@ export default function EquipmentListClient() {
               onChange={(value) => {
                 if (isRentalType(value)) {
                   setRentalType(value);
+                  setPage(1);
                 }
               }}
               onOpenChange={(open) =>
@@ -579,7 +612,10 @@ export default function EquipmentListClient() {
                     className="equipment-search-input h-12 w-full min-w-0 rounded-[15px] border-0 bg-[#ccc] p-4 pr-10 text-sm font-semibold text-[#122035] shadow-[inset_2px_5px_10px_rgba(0,0,0,0.3)] outline-none transition duration-300 ease-in-out"
                     id="equipment-min-price"
                     min="0"
-                    onChange={(event) => setMinPrice(event.target.value)}
+                    onChange={(event) => {
+                      setMinPrice(event.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Min"
                     step="any"
                     type="number"
@@ -589,9 +625,10 @@ export default function EquipmentListClient() {
                     <button
                       aria-label="Increase minimum price"
                       className="equipment-price-stepper-button"
-                      onClick={() =>
-                        setMinPrice((value) => adjustPriceByOne(value, 1))
-                      }
+                      onClick={() => {
+                        setMinPrice((value) => adjustPriceByOne(value, 1));
+                        setPage(1);
+                      }}
                       type="button"
                     >
                       <ArrowUp aria-hidden="true" className="size-3" />
@@ -599,9 +636,10 @@ export default function EquipmentListClient() {
                     <button
                       aria-label="Decrease minimum price"
                       className="equipment-price-stepper-button"
-                      onClick={() =>
-                        setMinPrice((value) => adjustPriceByOne(value, -1))
-                      }
+                      onClick={() => {
+                        setMinPrice((value) => adjustPriceByOne(value, -1));
+                        setPage(1);
+                      }}
                       type="button"
                     >
                       <ArrowDown aria-hidden="true" className="size-3" />
@@ -616,7 +654,10 @@ export default function EquipmentListClient() {
                     className="equipment-search-input h-12 w-full min-w-0 rounded-[15px] border-0 bg-[#ccc] p-4 pr-10 text-sm font-semibold text-[#122035] shadow-[inset_2px_5px_10px_rgba(0,0,0,0.3)] outline-none transition duration-300 ease-in-out"
                     id="equipment-max-price"
                     min="0"
-                    onChange={(event) => setMaxPrice(event.target.value)}
+                    onChange={(event) => {
+                      setMaxPrice(event.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Max"
                     step="any"
                     type="number"
@@ -626,9 +667,10 @@ export default function EquipmentListClient() {
                     <button
                       aria-label="Increase maximum price"
                       className="equipment-price-stepper-button"
-                      onClick={() =>
-                        setMaxPrice((value) => adjustPriceByOne(value, 1))
-                      }
+                      onClick={() => {
+                        setMaxPrice((value) => adjustPriceByOne(value, 1));
+                        setPage(1);
+                      }}
                       type="button"
                     >
                       <ArrowUp aria-hidden="true" className="size-3" />
@@ -636,9 +678,10 @@ export default function EquipmentListClient() {
                     <button
                       aria-label="Decrease maximum price"
                       className="equipment-price-stepper-button"
-                      onClick={() =>
-                        setMaxPrice((value) => adjustPriceByOne(value, -1))
-                      }
+                      onClick={() => {
+                        setMaxPrice((value) => adjustPriceByOne(value, -1));
+                        setPage(1);
+                      }}
                       type="button"
                     >
                       <ArrowDown aria-hidden="true" className="size-3" />
@@ -654,6 +697,7 @@ export default function EquipmentListClient() {
               onChange={(value) => {
                 if (isAvailabilityFilter(value)) {
                   setAvailability(value);
+                  setPage(1);
                 }
               }}
               onOpenChange={(open) =>
@@ -674,6 +718,7 @@ export default function EquipmentListClient() {
               onChange={(value) => {
                 if (isSortOption(value)) {
                   setSort(value);
+                  setPage(1);
                 }
               }}
               onOpenChange={(open) =>
@@ -845,6 +890,37 @@ export default function EquipmentListClient() {
                 ))}
               </AnimatePresence>
             </div>
+          )}
+
+          {state.status === "success" && pageCount > 1 && (
+            <nav
+              aria-label="Equipment pages"
+              className="mt-8 flex flex-wrap items-center justify-center gap-3"
+            >
+              <button
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#122035] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                type="button"
+              >
+                <ChevronLeft aria-hidden="true" className="size-4" />
+                Previous
+              </button>
+              <span aria-live="polite" className="text-sm font-semibold text-slate-600">
+                Page {page} of {pageCount}
+              </span>
+              <button
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#122035] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={page >= pageCount}
+                onClick={() =>
+                  setPage((current) => Math.min(pageCount, current + 1))
+                }
+                type="button"
+              >
+                Next
+                <ChevronRight aria-hidden="true" className="size-4" />
+              </button>
+            </nav>
           )}
         </motion.section>
       </main>

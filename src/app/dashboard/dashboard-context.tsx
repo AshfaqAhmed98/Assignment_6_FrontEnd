@@ -22,7 +22,6 @@ import {
   CircleUserRound,
   Heart,
   LayoutDashboard,
-  LoaderCircle,
   PackagePlus,
   ShieldCheck,
   UsersRound,
@@ -31,6 +30,7 @@ import {
 import { motion, useReducedMotion } from "framer-motion";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { EquipmentLoader } from "@/components/ui/equipment-loader";
 import { apiBaseUrl } from "@/lib/dashboard-api";
 import { requestAuthAccessToken } from "@/lib/auth-token";
 import { DashboardRouteTransition } from "./dashboard-route-transition";
@@ -152,14 +152,10 @@ function getInitials(name: string) {
 
 function LoadingPanel({ message }: { message: string }) {
   return (
-    <div
-      aria-live="polite"
-      className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-[0_20px_60px_-45px_rgba(8,22,45,0.5)]"
-      role="status"
-    >
-      <LoaderCircle aria-hidden="true" className="size-8 animate-spin text-[#e96a32]" />
-      <p className="text-sm font-semibold text-slate-600">{message}</p>
-    </div>
+    <EquipmentLoader
+      className="min-h-72 rounded-3xl border border-border bg-card p-8 shadow-[0_20px_60px_-45px_rgba(8,22,45,0.5)]"
+      message={message}
+    />
   );
 }
 

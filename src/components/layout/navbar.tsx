@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, LayoutDashboard, LogOut } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ThemeToggle } from "@/components/theme/theme-provider";
 
 type AuthState = "checking" | "authenticated" | "unauthenticated" | "error";
 type SessionResponse = {
@@ -407,11 +408,12 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center justify-self-end gap-3 xl:flex">
+          <ThemeToggle />
           <AccountActions {...accountActions} />
         </div>
 
         <div
-          className="relative justify-self-end xl:hidden"
+          className="flex items-center gap-2 justify-self-end xl:hidden"
           onKeyDown={(event) => {
             if (event.key === "Escape" && isMobileMenuOpen) {
               event.preventDefault();
@@ -420,6 +422,7 @@ export function Navbar() {
             }
           }}
         >
+          <ThemeToggle />
           <button
             aria-controls="mobile-navigation-menu"
             aria-expanded={isMobileMenuOpen}

@@ -1,21 +1,12 @@
 "use client";
 
-import { AlertTriangle, LoaderCircle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { ReactNode } from "react";
+import { EquipmentLoader } from "@/components/ui/equipment-loader";
 
 export function AdminLoading({ message }: { message: string }) {
   return (
-    <div
-      aria-live="polite"
-      className="flex min-h-56 flex-col items-center justify-center gap-3 text-center"
-      role="status"
-    >
-      <LoaderCircle
-        aria-hidden="true"
-        className="size-6 animate-spin text-[#526ab7]"
-      />
-      <p className="text-sm font-semibold text-slate-500">{message}</p>
-    </div>
+    <EquipmentLoader className="min-h-80 sm:min-h-96" message={message} />
   );
 }
 

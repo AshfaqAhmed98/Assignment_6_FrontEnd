@@ -53,7 +53,7 @@ function StepCard({
   reduceMotion: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(cardRef, { once: false, amount: 0.2 });
+  const isInView = useInView(cardRef, { once: true, amount: 0.2 });
   const hidden = {
     opacity: 0,
     scale: 0.68,
@@ -195,12 +195,8 @@ export function HowItWorks() {
       />
 
       <div className="relative mx-auto max-w-7xl">
-        <motion.div
+        <div
           className="mx-auto mb-12 max-w-2xl text-center"
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
-          transition={{ duration: reduceMotion ? 0 : 0.45, ease: "easeOut" }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.35 }}
         >
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#75d6c3]">
             How GearRent works
@@ -218,7 +214,7 @@ export function HowItWorks() {
             Explore equipment, compare your options, and get ready for the work
             ahead.
           </p>
-        </motion.div>
+        </div>
 
         <div
           className="relative"
@@ -247,7 +243,7 @@ export function HowItWorks() {
             delay: reduceMotion ? 0 : 0.15,
           }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.4 }}
         >
           <Link
             className="gearrent-primary-action group"
