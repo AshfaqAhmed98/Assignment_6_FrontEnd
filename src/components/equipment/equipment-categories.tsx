@@ -132,7 +132,7 @@ export function EquipmentCategories() {
             Browse by category
           </p>
           <h2
-            className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl"
+            className="gearrent-section-heading mt-3 text-slate-950"
             id="equipment-categories-title"
           >
             Find gear for every project

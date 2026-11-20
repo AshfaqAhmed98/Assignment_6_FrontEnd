@@ -203,12 +203,12 @@ export function CustomerReviews() {
               Voices from the field
             </p>
             <h2
-              className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl"
+              className="gearrent-section-heading mt-3 text-[#122035]"
               id="customer-reviews-title"
             >
               Good gear gets the story moving.
             </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600">
+            <p className="gearrent-section-description max-w-xl text-slate-600">
               A few ways renting can help make room for the work that matters.
             </p>
           </div>

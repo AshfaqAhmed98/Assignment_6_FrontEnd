@@ -106,7 +106,7 @@ export function RecentlyAdded() {
               New arrivals
             </p>
             <h2
-              className="mt-3 text-3xl font-black tracking-[-0.04em] text-[#08162d] sm:text-5xl"
+              className="gearrent-section-heading mt-3 text-[#08162d]"
               id="recently-added-title"
             >
               Just landed.
@@ -202,7 +202,7 @@ export function RecentlyAdded() {
                   ) : (
                     <Link
                       aria-label={`View ${leadItem.name} details`}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#ffc45b] px-4 py-2.5 text-xs font-black text-[#08162d] transition-all hover:gap-3 hover:bg-[#ffe09c]"
+                      className="gearrent-primary-action gearrent-primary-action--compact group"
                       href={`/equipment/${encodeURIComponent(leadItem.id)}`}
                     >
                       View listing
@@ -216,7 +216,7 @@ export function RecentlyAdded() {
             <div className="grid gap-3">
               {compactItems.map((item, index) => (
                 <motion.article
-                  className="group relative grid min-h-[178px] grid-cols-[112px_1fr] overflow-hidden rounded-[1.25rem] border border-[#08162d]/10 bg-white/75 shadow-[0_10px_28px_rgba(8,22,45,0.08)] backdrop-blur sm:grid-cols-[150px_1fr]"
+                  className="group relative grid h-[178px] grid-cols-[112px_1fr] overflow-hidden rounded-[1.25rem] border border-[#08162d]/10 bg-white/75 shadow-[0_10px_28px_rgba(8,22,45,0.08)] backdrop-blur sm:grid-cols-[150px_1fr]"
                   initial={{ opacity: 0, x: reduceMotion ? 0 : 30 }}
                   key={item.id}
                   transition={{
@@ -233,7 +233,7 @@ export function RecentlyAdded() {
                       aria-hidden="true"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       fill
-                      sizes="150px"
+                      sizes="(max-width: 639px) 112px, 150px"
                       src={item.image}
                     />
                   </div>

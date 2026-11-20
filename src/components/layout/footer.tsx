@@ -134,13 +134,13 @@ export function Footer() {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#75d6c3]">
               Your next project starts here
             </p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+            <h2 className="gearrent-section-heading mt-3 max-w-2xl text-white">
               Get the gear.
               <span className="block text-[#ffc45b]">Make something great.</span>
             </h2>
           </div>
           <Link
-            className="group inline-flex h-13 items-center justify-center gap-3 rounded-full bg-[#75d6c3] px-6 text-sm font-extrabold text-[#08162d] transition-all hover:-translate-y-1 hover:bg-[#a7f3e5]"
+            className="gearrent-primary-action group"
             href="/equipment"
           >
             Browse equipment

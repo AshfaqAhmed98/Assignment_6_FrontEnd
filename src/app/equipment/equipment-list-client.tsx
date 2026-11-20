@@ -831,7 +831,7 @@ export default function EquipmentListClient() {
                         </p>
                       </div>
                       <Link
-                        className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#08162d] px-4 text-sm font-bold text-white transition-colors hover:bg-[#143153] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+                        className="gearrent-primary-action group mt-5 w-full"
                         href={`/equipment/${encodeURIComponent(item.id)}`}
                       >
                         View Details

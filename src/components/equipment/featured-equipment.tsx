@@ -195,7 +195,7 @@ export function FeaturedEquipment() {
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#e96a32]">
               Approved and ready
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+            <h2 className="gearrent-section-heading mt-3 text-slate-950">
               Featured Equipment
             </h2>
           </div>
@@ -254,7 +254,7 @@ export function FeaturedEquipment() {
           </motion.p>
         )}
         {displayedItems.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
             {equipmentRows.map((row, rowIndex) => (
               <div
                 className="contents sm:flex sm:basis-full sm:gap-5 xl:contents"
@@ -270,7 +270,9 @@ export function FeaturedEquipment() {
                           ? "sm:max-w-[calc(33.333%_-_0.833rem)]"
                           : ""
                       } ${
-                        activeEquipmentId === item.id ? "col-span-2" : ""
+                        activeEquipmentId === item.id
+                          ? "sm:col-span-2"
+                          : ""
                       }`}
                       initial={{ opacity: 0, y: reduceMotion ? 0 : -24 }}
                       key={item.id}

@@ -416,7 +416,7 @@ export function BookingModal({
           )}
 
           <button
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#e96a32] px-5 text-sm font-bold text-white transition hover:bg-[#c94f1c] disabled:cursor-not-allowed disabled:opacity-55 sm:col-span-2"
+            className="gearrent-primary-action sm:col-span-2"
             disabled={
               isSubmitting ||
               currentAvailability.status !== "ready" ||

@@ -71,17 +71,17 @@ export function WhyChooseUs() {
             The GearRent difference
           </div>
           <h2
-            className="mt-8 max-w-md text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl"
+            className="gearrent-section-heading mt-8 max-w-md text-white"
             id="why-choose-us-title"
           >
             Make room for <span className="text-[#ffd277]">what matters.</span>
           </h2>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-slate-300">
+          <p className="gearrent-section-description max-w-md text-slate-300">
             Get the equipment you need without the long-term commitment. Find
             options, compare details, and plan a rental around your project.
           </p>
           <Link
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#ffd277] px-5 py-3 text-sm font-bold text-[#08162d] transition-all hover:gap-3 hover:bg-[#ffe09c] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffd277]"
+            className="gearrent-primary-action group mt-8"
             href="/equipment"
           >
             Explore equipment

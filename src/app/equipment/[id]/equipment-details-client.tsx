@@ -364,7 +364,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
           <p className="mt-8 text-xs font-extrabold uppercase tracking-[0.24em] text-[#75d6c3]">
             GearRent / Equipment
           </p>
-          <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl">
+          <h2 className="mt-3 max-w-2xl text-4xl font-black tracking-tight text-white sm:text-6xl">
             Equipment details
           </h2>
         </div>
@@ -404,7 +404,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
               {state.message}
             </p>
             <Link
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#08162d] px-5 text-sm font-bold text-white transition hover:bg-[#142b49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+              className="gearrent-primary-action mt-6"
               href="/equipment"
             >
               <ArrowLeft aria-hidden="true" className="size-4" />
@@ -678,7 +678,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                 )}
 
                 <button
-                  className="group mt-6 inline-flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-[#e96a32] to-[#fb9060] px-5 text-left text-sm font-extrabold text-white shadow-[0_14px_30px_-14px_rgba(233,106,50,0.75)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-14px_rgba(233,106,50,0.8)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#08162d] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:px-6"
+                  className="gearrent-primary-action gearrent-primary-action--between group mt-6 w-full"
                   disabled={role !== "Customer" || !accessToken}
                   onClick={() => openBookingModal()}
                   type="button"

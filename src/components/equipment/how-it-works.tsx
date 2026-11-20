@@ -206,7 +206,7 @@ export function HowItWorks() {
             How GearRent works
           </p>
           <h2
-            className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl"
+            className="gearrent-section-heading mt-3 text-white"
             id="how-it-works-title"
           >
             From project idea to{" "}
@@ -214,7 +214,7 @@ export function HowItWorks() {
               the right gear.
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-300">
+          <p className="gearrent-section-description mx-auto max-w-xl text-slate-300">
             Explore equipment, compare your options, and get ready for the work
             ahead.
           </p>
@@ -250,7 +250,7 @@ export function HowItWorks() {
           viewport={{ once: false, amount: 0.4 }}
         >
           <Link
-            className="inline-flex items-center gap-2 rounded-full bg-[#ffc45b] px-5 py-3 text-sm font-bold text-[#08162d] transition-all hover:gap-3 hover:bg-[#ffda8b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffc45b]"
+            className="gearrent-primary-action group"
             href="/equipment"
           >
             Explore equipment

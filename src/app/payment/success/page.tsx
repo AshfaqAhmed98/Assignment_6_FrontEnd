@@ -166,7 +166,7 @@ function PaymentSuccessContent() {
           <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#75d6c3]">
             GearRent payment
           </p>
-          <h1 className="mt-3 text-3xl font-black text-white sm:text-5xl">
+          <h1 className="mt-3 text-4xl font-black text-white sm:text-6xl">
             Checkout status
           </h1>
         </div>
@@ -246,7 +246,7 @@ function PaymentSuccessContent() {
             </>
           )}
           <button
-            className="mt-7 inline-flex h-11 items-center justify-center rounded-xl bg-[#08162d] px-5 text-sm font-bold text-white hover:bg-[#142b49]"
+            className="gearrent-primary-action mt-7"
             onClick={() => router.push("/")}
             type="button"
           >

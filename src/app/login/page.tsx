@@ -508,7 +508,7 @@ export default function LoginPage() {
               </div>
 
               <button
-                className="group inline-flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#e96a32] px-5 text-sm font-bold text-white shadow-[0_8px_20px_#e96a3233] transition-all hover:-translate-y-0.5 hover:bg-[#cf5624] hover:shadow-[0_12px_24px_#e96a3240] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32] disabled:cursor-not-allowed disabled:opacity-60"
+                className="gearrent-primary-action group w-full"
                 disabled={isSubmitting}
                 type="submit"
               >

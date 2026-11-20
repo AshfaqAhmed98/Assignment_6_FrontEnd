@@ -343,7 +343,7 @@ export function HeroSlideshow() {
                 }}
               >
                 <Link
-                  className="inline-flex h-12 items-center gap-3 rounded-md bg-[#e96a32] px-6 text-sm font-bold text-white transition-colors hover:bg-[#d85b25] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="gearrent-primary-action group"
                   href="/equipment"
                 >
                   Browse equipment
