@@ -379,7 +379,7 @@ export default function DashboardPage() {
           </div>
 
           <PerformanceChart
-            favoriteDates={favorites.map((favorite) => favorite.favoritedAt)}
+            comparisonDates={favorites.map((favorite) => favorite.favoritedAt)}
             rentalDates={bookings.map((booking) => booking.bookingDate)}
           />
 

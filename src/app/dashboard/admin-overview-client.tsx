@@ -12,18 +12,56 @@ import {
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
 import { useDashboard } from "./dashboard-context";
+import { ApprovalGauge } from "./approval-gauge";
 import { AdminError, AdminLoading } from "./admin/admin-ui";
+import { PerformanceChart } from "./performance-chart";
+import { RevenueTrendChart } from "./revenue-trend-chart";
 
 type AdminOverview = {
   users: number;
   equipment: number;
+  approvedEquipment: number;
   pendingEquipment: number;
+  rejectedEquipment: number;
   rentals: number;
   pendingPayments: number;
+  rentalDates: string[];
+  paidRentalDates: string[];
+  paidRevenuePoints: { date: string; amountMinor: number }[];
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isAdminEquipmentSummary(
+  value: unknown,
+): value is { id: string; approvalStatus: "approved" | "pending" | "rejected" } {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    (value.approvalStatus === "approved" ||
+      value.approvalStatus === "pending" ||
+      value.approvalStatus === "rejected")
+  );
+}
+
+function isAdminRentalSummary(
+  value: unknown,
+): value is {
+  id: string;
+  paymentStatus: "paid" | "pending";
+  bookingDate: string;
+  amountMinor: number;
+} {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    (value.paymentStatus === "paid" || value.paymentStatus === "pending") &&
+    typeof value.bookingDate === "string" &&
+    typeof value.amountMinor === "number" &&
+    Number.isFinite(value.amountMinor)
+  );
 }
 
 function parseOverview(
@@ -36,33 +74,49 @@ function parseOverview(
     typeof userPayload.total !== "number" ||
     !isRecord(equipmentPayload) ||
     !Array.isArray(equipmentPayload.items) ||
-    !equipmentPayload.items.every(
-      (item) =>
-        isRecord(item) &&
-        typeof item.id === "string" &&
-        typeof item.approvalStatus === "string",
-    ) ||
     !isRecord(rentalPayload) ||
-    !Array.isArray(rentalPayload.items) ||
-    !rentalPayload.items.every(
-      (item) =>
-        isRecord(item) &&
-        typeof item.id === "string" &&
-        typeof item.paymentStatus === "string",
-    )
+    !Array.isArray(rentalPayload.items)
   ) {
     return null;
   }
+
+  const equipmentItems = equipmentPayload.items.filter(
+    isAdminEquipmentSummary,
+  );
+  const rentalItems = rentalPayload.items.filter(isAdminRentalSummary);
+  if (
+    equipmentItems.length !== equipmentPayload.items.length ||
+    rentalItems.length !== rentalPayload.items.length
+  ) {
+    return null;
+  }
+
   return {
     users: userPayload.total,
-    equipment: equipmentPayload.items.length,
-    pendingEquipment: equipmentPayload.items.filter(
-      (item) => isRecord(item) && item.approvalStatus === "pending",
+    equipment: equipmentItems.length,
+    approvedEquipment: equipmentItems.filter(
+      (item) => item.approvalStatus === "approved",
     ).length,
-    rentals: rentalPayload.items.length,
-    pendingPayments: rentalPayload.items.filter(
-      (item) => isRecord(item) && item.paymentStatus === "pending",
+    pendingEquipment: equipmentItems.filter(
+      (item) => item.approvalStatus === "pending",
     ).length,
+    rejectedEquipment: equipmentItems.filter(
+      (item) => item.approvalStatus === "rejected",
+    ).length,
+    rentals: rentalItems.length,
+    pendingPayments: rentalItems.filter(
+      (item) => item.paymentStatus === "pending",
+    ).length,
+    rentalDates: rentalItems.map((item) => item.bookingDate),
+    paidRentalDates: rentalItems
+      .filter((item) => item.paymentStatus === "paid")
+      .map((item) => item.bookingDate),
+    paidRevenuePoints: rentalItems
+      .filter((item) => item.paymentStatus === "paid")
+      .map((item) => ({
+        date: item.bookingDate,
+        amountMinor: item.amountMinor,
+      })),
   };
 }
 
@@ -142,7 +196,6 @@ export default function AdminOverviewClient() {
         },
       ]
     : [];
-
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-[1.75rem] bg-[#e8ecfa] p-6 sm:p-8">
@@ -216,6 +269,70 @@ export default function AdminOverviewClient() {
               </Link>
             ))}
           </section>
+
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.8fr)]">
+            <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 sm:p-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.17em] text-[#526ab7]">
+                  Inventory health
+                </p>
+                <h3 className="mt-1 text-lg font-black text-[#17213d]">
+                  Equipment approval rate
+                </h3>
+              </div>
+              <div className="mt-5 grid items-center gap-5 sm:grid-cols-[minmax(128px,0.7fr)_minmax(0,1fr)]">
+                <ApprovalGauge
+                  approvedCount={overview.approvedEquipment}
+                  itemLabel="equipment listings"
+                  totalCount={overview.equipment}
+                />
+                <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1">
+                  {[
+                    {
+                      label: "Approved",
+                      value: overview.approvedEquipment,
+                      color: "text-emerald-700",
+                    },
+                    {
+                      label: "In review",
+                      value: overview.pendingEquipment,
+                      color: "text-amber-700",
+                    },
+                    {
+                      label: "Needs changes",
+                      value: overview.rejectedEquipment,
+                      color: "text-rose-700",
+                    },
+                  ].map((item) => (
+                    <div
+                      className="rounded-xl bg-[#f7f8fc] p-3"
+                      key={item.label}
+                    >
+                      <p className={`text-xs font-bold ${item.color}`}>
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-xl font-black text-[#17213d]">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+            <div className="min-w-0 space-y-4">
+              <PerformanceChart
+                activityNote="Bookings are grouped by booking date; the line shows paid rentals."
+                comparisonDates={overview.paidRentalDates}
+                comparisonLabel="Paid rentals"
+                description="Monthly platform bookings and paid rentals over time."
+                emptyMessage="Monthly rental trends will appear here as bookings come in."
+                rentalDates={overview.rentalDates}
+                rentalLabel="Bookings"
+                title="Rental performance"
+              />
+              <RevenueTrendChart points={overview.paidRevenuePoints} />
+            </div>
+          </div>
 
           <section className="rounded-[1.5rem] border border-[#dde2ef] bg-white p-5 sm:p-6">
             <p className="text-[10px] font-black uppercase tracking-[0.17em] text-[#526ab7]">

@@ -10,7 +10,6 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleDollarSign,
-  ClipboardList,
   Clock3,
   Hourglass,
   PackagePlus,
@@ -19,6 +18,9 @@ import {
 import { motion, useReducedMotion } from "framer-motion";
 import { dashboardRequest } from "@/lib/dashboard-api";
 import { useDashboard } from "./dashboard-context";
+import { ApprovalGauge } from "./approval-gauge";
+import { PerformanceChart } from "./performance-chart";
+import { RevenueTrendChart } from "./revenue-trend-chart";
 import {
   parseOwnerEquipment,
   type OwnerEquipment,
@@ -27,6 +29,7 @@ import {
 type OwnerRentalSummary = {
   id: string;
   equipment: { name: string };
+  bookingDate: string;
   startDate: string;
   amountMinor: number;
   paymentStatus: "paid" | "pending";
@@ -64,6 +67,7 @@ function isOwnerRentalSummary(value: unknown): value is OwnerRentalSummary {
     isRecord(value.equipment) &&
     typeof value.id === "string" &&
     typeof value.equipment.name === "string" &&
+    typeof value.bookingDate === "string" &&
     typeof value.startDate === "string" &&
     typeof value.amountMinor === "number" &&
     Number.isFinite(value.amountMinor) &&
@@ -244,9 +248,6 @@ export default function OwnerOverviewClient() {
       metrics.approvedListings +
       metrics.rejectedListings
     : 0;
-  const getApprovalWidth = (count: number) =>
-    listingTotal ? `${(count / listingTotal) * 100}%` : "0%";
-
   const statCards = metrics
     ? [
         {
@@ -279,6 +280,33 @@ export default function OwnerOverviewClient() {
         },
       ]
     : [];
+  const rentalActivity = metrics
+    ? [
+        { label: "Upcoming", value: metrics.upcomingRentals },
+        { label: "Ongoing", value: metrics.activeRentals },
+        { label: "Payment pending", value: metrics.pendingPayments },
+        { label: "Completed", value: metrics.completedRentals },
+      ]
+    : [];
+  const rentalDates =
+    state.status === "success"
+      ? state.rentals.map((rental) => rental.bookingDate)
+      : [];
+  const paidRentalDates =
+    state.status === "success"
+      ? state.rentals
+          .filter((rental) => rental.paymentStatus === "paid")
+          .map((rental) => rental.bookingDate)
+      : [];
+  const paidRevenuePoints =
+    state.status === "success"
+      ? state.rentals
+          .filter((rental) => rental.paymentStatus === "paid")
+          .map((rental) => ({
+            date: rental.bookingDate,
+            amountMinor: rental.amountMinor,
+          }))
+      : [];
 
   return (
     <div className="space-y-6">
@@ -357,7 +385,7 @@ export default function OwnerOverviewClient() {
             ))}
           </section>
 
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.8fr)]">
             <section className="rounded-[1.5rem] border border-[#e8dfce] bg-white p-5 sm:p-6">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
@@ -376,43 +404,32 @@ export default function OwnerOverviewClient() {
                   <ArrowUpRight aria-hidden="true" className="size-3.5" />
                 </Link>
               </div>
-              <div
-                aria-label={`${metrics.approvedListings} approved, ${metrics.pendingListings} pending, ${metrics.rejectedListings} needing changes`}
-                className="mt-6 flex h-3 overflow-hidden rounded-full bg-[#f0ece4]"
-                role="img"
-              >
-                <span
-                  className="bg-[#5e9a62] transition-[width]"
-                  style={{ width: getApprovalWidth(metrics.approvedListings) }}
+              <div className="mt-5 grid items-center gap-5 sm:grid-cols-[minmax(128px,0.7fr)_minmax(0,1fr)]">
+                <ApprovalGauge
+                  approvedCount={metrics.approvedListings}
+                  itemLabel="listings"
+                  totalCount={listingTotal}
                 />
-                <span
-                  className="bg-[#eab14f] transition-[width]"
-                  style={{ width: getApprovalWidth(metrics.pendingListings) }}
-                />
-                <span
-                  className="bg-[#cf6b58] transition-[width]"
-                  style={{ width: getApprovalWidth(metrics.rejectedListings) }}
-                />
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <ApprovalCount
-                  icon={<CheckCircle2 aria-hidden="true" className="size-4" />}
-                  label="Approved"
-                  value={metrics.approvedListings}
-                  color="text-emerald-700"
-                />
-                <ApprovalCount
-                  icon={<Clock3 aria-hidden="true" className="size-4" />}
-                  label="In review"
-                  value={metrics.pendingListings}
-                  color="text-amber-700"
-                />
-                <ApprovalCount
-                  icon={<TriangleAlert aria-hidden="true" className="size-4" />}
-                  label="Needs changes"
-                  value={metrics.rejectedListings}
-                  color="text-rose-700"
-                />
+                <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1">
+                  <ApprovalCount
+                    icon={<CheckCircle2 aria-hidden="true" className="size-4" />}
+                    label="Approved"
+                    value={metrics.approvedListings}
+                    color="text-emerald-700"
+                  />
+                  <ApprovalCount
+                    icon={<Clock3 aria-hidden="true" className="size-4" />}
+                    label="In review"
+                    value={metrics.pendingListings}
+                    color="text-amber-700"
+                  />
+                  <ApprovalCount
+                    icon={<TriangleAlert aria-hidden="true" className="size-4" />}
+                    label="Needs changes"
+                    value={metrics.rejectedListings}
+                    color="text-rose-700"
+                  />
+                </div>
               </div>
               {listingTotal === 0 && (
                 <div className="mt-5 rounded-xl bg-[#fbf8f2] px-4 py-3 text-xs leading-5 text-slate-600">
@@ -422,45 +439,37 @@ export default function OwnerOverviewClient() {
               )}
             </section>
 
-            <section className="rounded-[1.5rem] bg-[#172a21] p-5 text-white sm:p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.17em] text-[#f3a65c]">
-                    Rental pipeline
-                  </p>
-                  <h3 className="mt-1 text-lg font-black">Booking activity</h3>
-                </div>
-                <ClipboardList
-                  aria-hidden="true"
-                  className="size-5 text-[#f3a65c]"
-                />
-              </div>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <PipelineCount
-                  label="Upcoming"
-                  value={metrics.upcomingRentals}
-                />
-                <PipelineCount
-                  label="Ongoing"
-                  value={metrics.activeRentals}
-                />
-                <PipelineCount
-                  label="Payment pending"
-                  value={metrics.pendingPayments}
-                />
-                <PipelineCount
-                  label="Completed"
-                  value={metrics.completedRentals}
-                />
-              </div>
-              <Link
-                className="mt-5 inline-flex min-h-10 items-center gap-2 text-xs font-extrabold text-[#f3a65c] transition hover:text-[#ffc17f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f3a65c]"
-                href="/dashboard/equipment-rentals"
+            <div className="min-w-0 space-y-4">
+              <PerformanceChart
+                activityNote="Bookings are grouped by booking date; the line shows paid rentals."
+                comparisonDates={paidRentalDates}
+                comparisonLabel="Paid rentals"
+                description="Monthly bookings and paid rentals over time."
+                emptyMessage="Monthly rental trends will appear here as bookings come in."
+                rentalDates={rentalDates}
+                rentalLabel="Bookings"
+                title="Rental performance"
+              />
+              <section
+                aria-label="Rental totals by status"
+                className="grid grid-cols-2 gap-3 sm:grid-cols-4"
               >
-                View all rental activity
-                <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
-            </section>
+                {rentalActivity.map((item) => (
+                  <div
+                    className="rounded-xl border border-[#e8dfce] bg-white p-3"
+                    key={item.label}
+                  >
+                    <p className="text-[10px] font-bold text-slate-500">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-xl font-black text-[#172a21]">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </section>
+              <RevenueTrendChart points={paidRevenuePoints} />
+            </div>
           </div>
 
           <section className="rounded-[1.5rem] border border-[#e8dfce] bg-white p-5 sm:p-6">
@@ -558,15 +567,6 @@ function ApprovalCount({
         {label}
       </div>
       <p className="mt-2 text-xl font-black text-[#172a21]">{value}</p>
-    </div>
-  );
-}
-
-function PipelineCount({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.05] p-3">
-      <p className="text-[10px] font-bold text-white/55">{label}</p>
-      <p className="mt-1 text-xl font-black text-white">{value}</p>
     </div>
   );
 }

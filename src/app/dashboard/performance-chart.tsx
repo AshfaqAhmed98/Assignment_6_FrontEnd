@@ -161,14 +161,26 @@ function getCurvePath(points: { x: number; y: number }[]) {
 
 export function PerformanceChart({
   rentalDates,
-  favoriteDates,
+  comparisonDates,
+  title = "Performance",
+  description = "Your rental bookings and saved gear over time.",
+  rentalLabel = "Rental bookings",
+  comparisonLabel = "Favorites added",
+  activityNote = "Activity is calculated from your confirmed bookings and saved equipment.",
+  emptyMessage = "Your real activity will appear here when you book equipment or save a favorite.",
 }: {
   rentalDates: string[];
-  favoriteDates: string[];
+  comparisonDates: string[];
+  title?: string;
+  description?: string;
+  rentalLabel?: string;
+  comparisonLabel?: string;
+  activityNote?: string;
+  emptyMessage?: string;
 }) {
   const [range, setRange] = useState<PerformanceRange>("1y");
   const reduceMotion = useReducedMotion() ?? false;
-  const buckets = buildBuckets(range, rentalDates, favoriteDates);
+  const buckets = buildBuckets(range, rentalDates, comparisonDates);
   const rentalTotal = buckets.reduce((total, bucket) => total + bucket.rentals, 0);
   const favoriteTotal = buckets.reduce(
     (total, bucket) => total + bucket.favorites,
@@ -217,10 +229,10 @@ export function PerformanceChart({
                 className="text-lg font-black tracking-tight text-[#08162d]"
                 id="dashboard-performance-title"
               >
-                Performance
+                {title}
               </h3>
               <p className="mt-1 text-xs font-medium text-slate-500">
-                Your rental bookings and saved gear over time.
+                {description}
               </p>
             </div>
           </div>
@@ -256,7 +268,7 @@ export function PerformanceChart({
               aria-hidden="true"
               className="size-2.5 rounded-sm bg-[#e96a32]"
             />
-            Rental bookings
+            {rentalLabel}
             <strong className="text-sm font-black text-[#08162d]">
               {rentalTotal}
             </strong>
@@ -266,7 +278,7 @@ export function PerformanceChart({
               aria-hidden="true"
               className="size-2.5 rounded-full bg-[#1c9a7a]"
             />
-            Favorites added
+            {comparisonLabel}
             <strong className="text-sm font-black text-[#08162d]">
               {favoriteTotal}
             </strong>
@@ -274,14 +286,12 @@ export function PerformanceChart({
         </div>
 
         <div className="mt-4 rounded-xl border border-[#75d6c3]/25 bg-[#effbf8] px-4 py-3 text-xs font-semibold leading-5 text-[#285c54]">
-          {hasActivity
-            ? "Activity is calculated from your confirmed bookings and saved equipment."
-            : "Your real activity will appear here when you book equipment or save a favorite."}
+          {hasActivity ? activityNote : emptyMessage}
         </div>
 
         <div className="relative mt-3 overflow-x-auto">
           <svg
-            aria-label={`Rental bookings and favorites for ${
+            aria-label={`${rentalLabel} and ${comparisonLabel} for ${
               range === "all" ? "all time" : `the last ${range.toUpperCase()}`
             }`}
             className="h-[250px] min-w-[600px] w-full"
@@ -367,7 +377,7 @@ export function PerformanceChart({
                   fill="url(#dashboard-rental-bars)"
                 >
                   <title>
-                    {bucket.label}: {bucket.rentals} rental bookings
+                    {bucket.label}: {bucket.rentals} {rentalLabel.toLowerCase()}
                   </title>
                 </motion.rect>
               );
@@ -392,7 +402,8 @@ export function PerformanceChart({
                 strokeWidth="2"
               >
                 <title>
-                  {buckets[index].label}: {buckets[index].favorites} favorites
+                  {buckets[index].label}: {buckets[index].favorites}{" "}
+                  {comparisonLabel.toLowerCase()}
                 </title>
               </circle>
             ))}
@@ -419,14 +430,14 @@ export function PerformanceChart({
               aria-hidden="true"
               className="size-2.5 rounded-sm bg-[#e96a32]"
             />
-            Rental bookings
+            {rentalLabel}
           </span>
           <span className="inline-flex items-center gap-2">
             <span
               aria-hidden="true"
               className="h-0.5 w-4 rounded-full bg-[#1c9a7a]"
             />
-            Favorites added
+            {comparisonLabel}
           </span>
         </div>
       </div>

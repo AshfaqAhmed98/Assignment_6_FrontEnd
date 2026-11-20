@@ -178,7 +178,7 @@ function OwnerDashboardHero({ user }: { user: DashboardUser }) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#101f19]/70 to-transparent"
       />
-      <div className="relative mx-auto flex max-w-[1480px] flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex w-full flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-[#f3a65c]">
             <Wrench aria-hidden="true" className="size-4" />
@@ -223,7 +223,7 @@ function AdminDashboardHero({ user }: { user: DashboardUser }) {
         aria-hidden="true"
         className="pointer-events-none absolute -right-4 -top-16 size-[18rem] rounded-full border border-[#8da9ff]/20"
       />
-      <div className="relative mx-auto flex max-w-[1480px] flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex w-full flex-wrap items-end justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-[#a9bbff]">
             <ShieldCheck aria-hidden="true" className="size-4" />
@@ -651,15 +651,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const showProtectedPage = state.status === "ready" && roleCanViewPage;
 
   return (
-    <div
-      className={`min-h-screen ${
-        isOwnerDashboard
-          ? "bg-[#f4f0e7]"
-          : isAdminDashboard
-            ? "bg-[#f0f2f8]"
-            : "bg-[#f5f7fb]"
-      }`}
-    >
+    <div className="min-h-screen bg-[#f5f7fb]">
       <Navbar />
       {isAdminDashboard ? (
         <AdminDashboardHero user={state.user} />
@@ -679,7 +671,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
             aria-hidden="true"
             className="pointer-events-none absolute bottom-0 left-1/4 h-px w-1/2 bg-gradient-to-r from-transparent via-[#ffd277]/70 to-transparent"
           />
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative w-full px-4 sm:px-6 lg:px-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#75d6c3]">
               Your GearRent account
             </p>
@@ -727,8 +719,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       <main
         className={
           isAdminDashboard || isOwnerDashboard
-            ? "relative mx-auto max-w-[1480px] px-4 pb-16 pt-8 sm:px-6 lg:px-8"
-            : "relative mx-auto -mt-10 max-w-7xl px-4 pb-20 sm:px-6 lg:px-8"
+            ? "relative w-full px-4 pb-16 pt-8 sm:px-6 lg:px-8"
+            : "relative -mt-10 w-full px-4 pb-20 sm:px-6 lg:px-8"
         }
       >
         {state.status === "loading" && (
@@ -766,7 +758,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                   reduceMotion={reduceMotion}
                   user={state.user}
                 />
-                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-[#dde2ef] bg-[#fcfcff] p-5 shadow-[0_24px_70px_-55px_rgba(23,33,61,0.55)] sm:p-8">
+                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_24px_70px_-55px_rgba(8,22,45,0.3)] sm:p-8">
                   <DashboardRouteTransition>{children}</DashboardRouteTransition>
                 </section>
               </div>
@@ -777,7 +769,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                   reduceMotion={reduceMotion}
                   user={state.user}
                 />
-                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-[#e6dece] bg-[#fffdf8] p-5 shadow-[0_24px_70px_-55px_rgba(23,42,33,0.55)] sm:p-8">
+                <section className="min-h-[560px] min-w-0 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_24px_70px_-55px_rgba(8,22,45,0.3)] sm:p-8">
                   <DashboardRouteTransition>{children}</DashboardRouteTransition>
                 </section>
               </div>
