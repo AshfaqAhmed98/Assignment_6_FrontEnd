@@ -572,11 +572,13 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DashboardState>({ status: "loading" });
 
   const refreshUser = useCallback(async () => {
-    const user = await loadSession();
+    const [user, accessToken] = await Promise.all([
+      loadSession(),
+      requestAuthAccessToken(apiBaseUrl),
+    ]);
     if (!user) {
       throw new Error("Your session has ended. Please sign in again.");
     }
-    const accessToken = await requestAuthAccessToken(apiBaseUrl);
     setState({ status: "ready", user, accessToken });
   }, []);
 
@@ -585,15 +587,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
     async function initializeDashboard() {
       try {
-        const user = await loadSession(controller.signal);
+        const [user, accessToken] = await Promise.all([
+          loadSession(controller.signal),
+          requestAuthAccessToken(apiBaseUrl, controller.signal),
+        ]);
         if (!user) {
           router.replace(loginUrl());
           return;
         }
-        const accessToken = await requestAuthAccessToken(
-          apiBaseUrl,
-          controller.signal,
-        );
         if (!controller.signal.aborted) {
           setState({ status: "ready", user, accessToken });
         }

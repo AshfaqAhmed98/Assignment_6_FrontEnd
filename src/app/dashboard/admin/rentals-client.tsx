@@ -292,7 +292,7 @@ export default function AdminRentalsClient() {
       )}
       {state.status === "success" && items.length > 0 && (
         <AdminTableFrame>
-          <table className={`${adminTableClassName} min-w-[1380px]`}>
+          <table className={`dashboard-data-table ${adminTableClassName} min-w-[1380px]`}>
             <thead className={adminTableHeadClassName}>
               <tr>
                 <th className="px-4 py-4">Customer information</th>

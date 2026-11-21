@@ -259,7 +259,7 @@ export default function FavoritesPage() {
       {state.status === "success" && filteredItems.length > 0 && (
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+            <table className="dashboard-data-table w-full min-w-[720px] border-collapse text-left text-sm">
               <thead className="bg-[#08162d] text-xs uppercase tracking-wide text-white/80">
                 <tr>
                   <th className="px-4 py-4 font-extrabold">Equipment</th>

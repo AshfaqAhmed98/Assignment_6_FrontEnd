@@ -628,7 +628,7 @@ export default function AdminUsersClient() {
       {state.status === "success" && state.items.length > 0 && (
         <>
           <AdminTableFrame>
-            <table className="w-full min-w-[1040px] text-left text-sm">
+            <table className="dashboard-data-table w-full min-w-[1040px] text-left text-sm">
               <thead className={adminTableHeadClassName}>
                 <tr>
                   <th className="px-4 py-4">User</th>

@@ -250,7 +250,7 @@ export default function MyEquipmentClient() {
       {state.status === "success" && filteredItems.length > 0 && (
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[850px] text-left">
+            <table className="dashboard-data-table w-full min-w-[850px] text-left">
               <thead className="bg-[#f7f9fc] text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">
                 <tr>
                   <th className="px-5 py-4">Equipment name</th>

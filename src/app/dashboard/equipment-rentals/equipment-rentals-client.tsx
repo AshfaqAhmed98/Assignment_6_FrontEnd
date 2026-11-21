@@ -259,7 +259,7 @@ export default function EquipmentRentalsClient() {
       {state.status === "success" && filteredItems.length > 0 && (
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1180px] text-left">
+            <table className="dashboard-data-table w-full min-w-[1180px] text-left">
               <thead className="bg-[#f7f9fc] text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-500">
                 <tr>
                   <th className="px-4 py-4">Customer information</th>

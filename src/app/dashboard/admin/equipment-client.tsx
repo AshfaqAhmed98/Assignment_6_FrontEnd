@@ -364,7 +364,7 @@ export default function AdminEquipmentClient() {
       )}
       {state.status === "success" && items.length > 0 && (
         <AdminTableFrame>
-          <table className={adminTableClassName}>
+          <table className={`dashboard-data-table ${adminTableClassName}`}>
             <thead className={adminTableHeadClassName}>
               <tr>
                 <th className="px-4 py-4">Equipment</th>

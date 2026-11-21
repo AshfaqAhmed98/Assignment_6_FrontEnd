@@ -790,6 +790,18 @@ html.dark [class~="divide-slate-100"] {
   border-color: var(--theme-border) !important;
 }
 
+html.dark .dashboard-data-table tbody {
+  background-color: var(--theme-surface) !important;
+}
+
+html.dark .dashboard-data-table tbody tr:hover {
+  background-color: var(--theme-surface-raised) !important;
+}
+
+html.dark .dashboard-data-table tbody td {
+  color: var(--theme-foreground) !important;
+}
+
 html.dark .dashboard-calendar-empty-state {
   background: linear-gradient(120deg, #1b2b40, #16263a) !important;
 }
