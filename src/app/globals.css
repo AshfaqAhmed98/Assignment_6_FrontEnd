@@ -180,6 +180,11 @@ html.dark body {
   color: var(--theme-foreground);
 }
 
+html.dark main.gearrent-about-page,
+html.dark main.gearrent-contact-page {
+  background-color: var(--theme-page) !important;
+}
+
 html.dark main.auth-page {
   --auth-accent: #c4b5fd;
   --auth-accent-bright: #a78bfa;

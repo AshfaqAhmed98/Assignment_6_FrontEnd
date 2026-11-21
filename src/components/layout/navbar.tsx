@@ -401,8 +401,7 @@ export function Navbar() {
             label="Contact Us"
           />
           <NavigationLink
-            active={isNavigationActive(pathname, "/how-it-works")}
-            href="/how-it-works"
+            href="/#how-it-works-title"
             label="How it works"
           />
         </nav>
@@ -524,8 +523,7 @@ export function Navbar() {
                       reduceMotion={reduceMotion}
                     />
                     <MobileNavigationLink
-                      active={isNavigationActive(pathname, "/how-it-works")}
-                      href="/how-it-works"
+                      href="/#how-it-works-title"
                       index={4}
                       label="How it works"
                       onNavigate={() => setIsMobileMenuOpen(false)}

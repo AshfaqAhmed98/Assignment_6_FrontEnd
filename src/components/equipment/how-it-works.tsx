@@ -178,8 +178,9 @@ export function HowItWorks() {
 
   return (
     <section
-      aria-labelledby="how-it-works-title"
+      aria-labelledby="how-it-works-heading"
       className="relative isolate overflow-hidden bg-[#08162d] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8"
+      id="how-it-works-title"
     >
       <div
         aria-hidden="true"
@@ -203,7 +204,7 @@ export function HowItWorks() {
           </p>
           <h2
             className="gearrent-section-heading mt-3 text-white"
-            id="how-it-works-title"
+            id="how-it-works-heading"
           >
             From project idea to{" "}
             <span className="bg-gradient-to-r from-[#75d6c3] via-[#ffc45b] to-[#fb9060] bg-clip-text text-transparent">
