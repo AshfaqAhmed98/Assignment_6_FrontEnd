@@ -76,7 +76,9 @@ export default function AdminEquipmentClient() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [retryKey, setRetryKey] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -127,6 +129,10 @@ export default function AdminEquipmentClient() {
       return matchesStatus && matchesSearch;
     });
   }, [search, state, statusFilter]);
+  const pendingCount =
+    state.status === "success"
+      ? state.items.filter((item) => item.approvalStatus === "pending").length
+      : 0;
 
   async function updateApproval(
     item: OwnerEquipment,
@@ -134,6 +140,7 @@ export default function AdminEquipmentClient() {
   ) {
     setBusyId(item.id);
     setActionError(null);
+    setActionNotice(null);
     try {
       const payload = await dashboardRequest(
         `/api/equipment/admin/${encodeURIComponent(item.id)}/approval`,
@@ -175,6 +182,52 @@ export default function AdminEquipmentClient() {
     }
   }
 
+  async function approveAllPending() {
+    if (
+      state.status !== "success" ||
+      pendingCount === 0 ||
+      !window.confirm(
+        `Approve all ${pendingCount} pending listings across the entire catalog? They will become publicly visible.`,
+      )
+    ) {
+      return;
+    }
+
+    setIsApprovingAll(true);
+    setActionError(null);
+    setActionNotice(null);
+    try {
+      const payload = await dashboardRequest(
+        "/api/equipment/admin/approval/approve-all",
+        accessToken,
+        { method: "PATCH" },
+      );
+      if (
+        typeof payload !== "object" ||
+        payload === null ||
+        !("approvedCount" in payload) ||
+        typeof payload.approvedCount !== "number" ||
+        !Number.isSafeInteger(payload.approvedCount) ||
+        payload.approvedCount < 0
+      ) {
+        throw new Error("The equipment service returned an invalid approval count.");
+      }
+
+      setActionNotice(
+        `Approved ${payload.approvedCount} pending listing${payload.approvedCount === 1 ? "" : "s"}.`,
+      );
+      setRetryKey((current) => current + 1);
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Could not approve pending equipment listings.",
+      );
+    } finally {
+      setIsApprovingAll(false);
+    }
+  }
+
   async function deleteEquipment(item: OwnerEquipment) {
     if (
       !window.confirm(
@@ -185,6 +238,7 @@ export default function AdminEquipmentClient() {
     }
     setBusyId(item.id);
     setActionError(null);
+    setActionNotice(null);
     try {
       await dashboardRequest(
         `/api/equipment/${encodeURIComponent(item.id)}`,
@@ -245,9 +299,29 @@ export default function AdminEquipmentClient() {
           </select>
         </label>
         {state.status === "success" && (
-          <p className="ml-auto text-xs font-bold text-slate-500">
-            {items.length} of {state.items.length} listings
-          </p>
+          <div className="ml-auto flex flex-wrap items-center gap-3">
+            {pendingCount > 0 && (
+              <button
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-extrabold text-white transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isApprovingAll || busyId !== null}
+                onClick={() => void approveAllPending()}
+                type="button"
+              >
+                {isApprovingAll ? (
+                  <LoaderCircle
+                    aria-hidden="true"
+                    className="size-4 animate-spin"
+                  />
+                ) : (
+                  <Check aria-hidden="true" className="size-4" />
+                )}
+                Approve all pending ({pendingCount})
+              </button>
+            )}
+            <p className="text-xs font-bold text-slate-500">
+              {items.length} of {state.items.length} listings
+            </p>
+          </div>
         )}
       </div>
 
@@ -258,6 +332,15 @@ export default function AdminEquipmentClient() {
           role="alert"
         >
           {actionError}
+        </p>
+      )}
+      {actionNotice && (
+        <p
+          aria-live="polite"
+          className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900"
+          role="status"
+        >
+          {actionNotice}
         </p>
       )}
       {state.status === "loading" && (
@@ -338,7 +421,7 @@ export default function AdminEquipmentClient() {
                       {item.approvalStatus !== "approved" && (
                         <button
                           className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 text-[11px] font-extrabold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-50"
-                          disabled={busyId === item.id}
+                          disabled={isApprovingAll || busyId === item.id}
                           onClick={() => void updateApproval(item, "approved")}
                           type="button"
                         >
@@ -356,7 +439,7 @@ export default function AdminEquipmentClient() {
                       {item.approvalStatus !== "rejected" && (
                         <button
                           className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-rose-50 px-2.5 text-[11px] font-extrabold text-rose-800 transition hover:bg-rose-100 disabled:opacity-50"
-                          disabled={busyId === item.id}
+                          disabled={isApprovingAll || busyId === item.id}
                           onClick={() => void updateApproval(item, "rejected")}
                           type="button"
                         >
@@ -374,7 +457,7 @@ export default function AdminEquipmentClient() {
                       <button
                         aria-label={`Delete ${item.name}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-rose-100 text-rose-700 transition hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 disabled:opacity-50"
-                        disabled={busyId === item.id}
+                        disabled={isApprovingAll || busyId === item.id}
                         onClick={() => void deleteEquipment(item)}
                         type="button"
                       >
