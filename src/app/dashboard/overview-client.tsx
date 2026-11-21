@@ -443,7 +443,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="p-5">
-                  <div className="rounded-xl bg-[linear-gradient(120deg,#fff8e7,#f8fbff)] p-5">
+                  <div className="dashboard-calendar-empty-state rounded-xl bg-[linear-gradient(120deg,#fff8e7,#f8fbff)] p-5">
                     <span className="flex size-10 items-center justify-center rounded-xl bg-white text-[#c94f1c] shadow-sm">
                       <Compass aria-hidden="true" className="size-5" />
                     </span>
@@ -538,7 +538,7 @@ export default function DashboardPage() {
 
           <motion.section
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-[#f2d89d] bg-[linear-gradient(110deg,#fff9eb,#fff4d8_52%,#fff)] p-5 sm:p-6"
+            className="dashboard-shortlist-banner flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-[#f2d89d] bg-[linear-gradient(110deg,#fff9eb,#fff4d8_52%,#fff)] p-5 sm:p-6"
             initial={reduceMotion ? false : { opacity: 0, y: 14 }}
             transition={{ delay: reduceMotion ? 0 : 0.3, duration: 0.4 }}
           >

@@ -180,6 +180,108 @@ html.dark body {
   color: var(--theme-foreground);
 }
 
+html.dark main.auth-page {
+  --auth-accent: #c4b5fd;
+  --auth-accent-bright: #a78bfa;
+  --auth-accent-strong: #7c3aed;
+
+  background-color: #090718 !important;
+}
+
+html.dark .auth-page--login .auth-form-panel {
+  background:
+    radial-gradient(
+      circle at 90% 8%,
+      rgb(139 92 246 / 24%),
+      transparent 24rem
+    ),
+    radial-gradient(
+      circle at 8% 88%,
+      rgb(99 102 241 / 13%),
+      transparent 22rem
+    ),
+    linear-gradient(145deg, #100b22, #191333 56%, #11152b);
+}
+
+html.dark .auth-page--register .auth-form-panel {
+  background:
+    radial-gradient(
+      circle at 88% 6%,
+      rgb(167 139 250 / 24%),
+      transparent 24rem
+    ),
+    radial-gradient(
+      circle at 8% 88%,
+      rgb(124 58 237 / 14%),
+      transparent 22rem
+    ),
+    linear-gradient(145deg, #0d0a1d, #1a1233 56%, #12152c);
+}
+
+html.dark .auth-page input:not([type="checkbox"]):not([type="file"]),
+html.dark .auth-page select {
+  border-color: #493b70 !important;
+  background-color: #100d23 !important;
+  color: #e8eef7 !important;
+}
+
+html.dark .auth-page input::placeholder {
+  color: #a49bbd !important;
+}
+
+html.dark .auth-page input:not([type="checkbox"]):not([type="file"]):focus,
+html.dark .auth-page select:focus {
+  border-color: var(--auth-accent-bright) !important;
+  background-color: #17112f !important;
+  box-shadow: 0 0 0 4px rgb(167 139 250 / 18%) !important;
+}
+
+html.dark .auth-page select option {
+  background-color: #100d23;
+  color: #e8eef7;
+}
+
+html.dark .auth-page [class*="text-[#c94f1c]"],
+html.dark .auth-page [class*="text-[#e96a32]"],
+html.dark .auth-page [class*="text-[#ffd277]"],
+html.dark .auth-page [class*="text-[#ffe1a3]"] {
+  color: var(--auth-accent) !important;
+}
+
+html.dark .auth-page [class*="bg-[#ffd277]"],
+html.dark .auth-page [class*="bg-[#e96a32]"] {
+  background-color: rgb(167 139 250 / 16%) !important;
+}
+
+html.dark .auth-page [class*="border-[#ffd277]"],
+html.dark .auth-page [class*="border-[#e96a32]"] {
+  border-color: rgb(167 139 250 / 42%) !important;
+}
+
+html.dark .auth-page .gearrent-primary-action,
+html.dark .auth-page a[class*="bg-[#e96a32]"] {
+  border-color: var(--auth-accent-strong) !important;
+  background-color: var(--auth-accent-strong) !important;
+  background-image: linear-gradient(120deg, #7c3aed, #8b5cf6 58%, #a78bfa);
+  color: #fff !important;
+  box-shadow: 0 8px 24px rgb(124 58 237 / 28%);
+}
+
+html.dark .auth-page .gearrent-primary-action:hover:not(:disabled),
+html.dark .auth-page a[class*="bg-[#e96a32]"]:hover {
+  background-color: #6d28d9 !important;
+  background-image: linear-gradient(120deg, #6d28d9, #7c3aed 58%, #8b5cf6);
+  box-shadow: 0 10px 28px rgb(124 58 237 / 38%);
+}
+
+html.dark .auth-page :is(a, button, input, select):focus-visible {
+  outline-color: var(--auth-accent-bright) !important;
+}
+
+html.dark .auth-page input[type="checkbox"] {
+  accent-color: var(--auth-accent-strong);
+}
+
 html.dark ::selection {
   background-color: rgb(83 121 255 / 40%);
   color: #f5f8ff;
@@ -681,6 +783,19 @@ html.dark [class~="border-[#e8dfce]"],
 html.dark [class~="border-[#eee8dc]"],
 html.dark [class~="divide-slate-100"] {
   border-color: var(--theme-border) !important;
+}
+
+html.dark .dashboard-calendar-empty-state {
+  background: linear-gradient(120deg, #1b2b40, #16263a) !important;
+}
+
+html.dark .dashboard-shortlist-banner {
+  background: linear-gradient(110deg, #352c21, #33291e 52%, #18263a) !important;
+  border-color: #665531 !important;
+}
+
+html.dark .dashboard-shortlist-banner > div > span {
+  color: #08162d !important;
 }
 
 html.dark [class~="border-amber-200"],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -8,7 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LoaderCircle,
+  MessageSquare,
   Search,
+  Send,
+  Star,
   SlidersHorizontal,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
@@ -24,6 +27,7 @@ type CustomerBooking = {
   currency: "bdt";
   paymentStatus: string;
   bookingStatus: "upcoming" | "ongoing" | "completed";
+  reviewSubmitted: boolean;
 };
 
 type RentalsState =
@@ -54,7 +58,9 @@ function isCustomerBooking(value: unknown): value is CustomerBooking {
     "bookingStatus" in value &&
     (value.bookingStatus === "upcoming" ||
       value.bookingStatus === "ongoing" ||
-      value.bookingStatus === "completed")
+      value.bookingStatus === "completed") &&
+    "reviewSubmitted" in value &&
+    typeof value.reviewSubmitted === "boolean"
   );
 }
 
@@ -93,6 +99,12 @@ export default function MyRentalsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
+  const [reviewBookingId, setReviewBookingId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewNotice, setReviewNotice] = useState<string | null>(null);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -150,6 +162,49 @@ export default function MyRentalsPage() {
     { value: "ongoing", label: "Ongoing" },
     { value: "completed", label: "Completed" },
   ] as const;
+
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!reviewBookingId) {
+      return;
+    }
+
+    setReviewError(null);
+    setReviewNotice(null);
+    setIsSubmittingReview(true);
+    try {
+      await dashboardRequest("/api/reviews", accessToken, {
+        method: "POST",
+        body: JSON.stringify({
+          bookingId: reviewBookingId,
+          rating: reviewRating,
+          comment: reviewComment,
+        }),
+      });
+      setState((current) =>
+        current.status === "success"
+          ? {
+              ...current,
+              items: current.items.map((booking) =>
+                booking.id === reviewBookingId
+                  ? { ...booking, reviewSubmitted: true }
+                  : booking,
+              ),
+            }
+          : current,
+      );
+      setReviewBookingId(null);
+      setReviewComment("");
+      setReviewRating(5);
+      setReviewNotice("Thank you—your review has been published.");
+    } catch (error) {
+      setReviewError(
+        error instanceof Error ? error.message : "Could not submit your review.",
+      );
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  }
 
   return (
     <div>
@@ -288,6 +343,15 @@ export default function MyRentalsPage() {
             </button>
           </div>
         )}
+      {reviewNotice && (
+        <p
+          aria-live="polite"
+          className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"
+          role="status"
+        >
+          {reviewNotice}
+        </p>
+      )}
       {state.status === "success" && filteredItems.length > 0 && (
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
           <div className="overflow-x-auto">
@@ -301,39 +365,176 @@ export default function MyRentalsPage() {
                   <th className="px-4 py-4 font-extrabold">Total Amount</th>
                   <th className="px-4 py-4 font-extrabold">Payment Status</th>
                   <th className="px-4 py-4 font-extrabold">Booking Status</th>
+                  <th className="px-4 py-4 font-extrabold">Review</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {pageItems.map((booking) => (
-                  <tr className="transition-colors hover:bg-slate-50" key={booking.id}>
-                    <td className="px-4 py-4 font-bold text-[#08162d]">
-                      {booking.equipmentName}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                      {formatDate(booking.startDate)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                      {formatDate(booking.endDate)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-slate-600">
-                      {formatDate(booking.bookingDate)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 font-extrabold text-[#08162d]">
-                      {formatAmount(booking.amountMinor)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-extrabold capitalize text-emerald-700">
-                        {booking.paymentStatus}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-extrabold capitalize ${bookingStatusClasses[booking.bookingStatus]}`}
-                      >
-                        {booking.bookingStatus}
-                      </span>
-                    </td>
-                  </tr>
+                  <Fragment key={booking.id}>
+                    <tr
+                      className="transition-colors hover:bg-slate-50"
+                    >
+                      <td className="px-4 py-4 font-bold text-[#08162d]">
+                        {booking.equipmentName}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                        {formatDate(booking.startDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                        {formatDate(booking.endDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                        {formatDate(booking.bookingDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 font-extrabold text-[#08162d]">
+                        {formatAmount(booking.amountMinor)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-extrabold capitalize text-emerald-700">
+                          {booking.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-extrabold capitalize ${bookingStatusClasses[booking.bookingStatus]}`}
+                        >
+                          {booking.bookingStatus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        {booking.bookingStatus === "completed" &&
+                          (booking.reviewSubmitted ? (
+                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-emerald-700">
+                              <Star
+                                aria-hidden="true"
+                                className="size-3.5 fill-current"
+                              />
+                              Reviewed
+                            </span>
+                          ) : (
+                            <button
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#e96a32] px-3 py-2 text-xs font-bold text-[#c94f1c] transition hover:bg-[#e96a32] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+                              onClick={() => {
+                                setReviewBookingId((current) =>
+                                  current === booking.id ? null : booking.id,
+                                );
+                                setReviewError(null);
+                                setReviewNotice(null);
+                              }}
+                              type="button"
+                            >
+                              <MessageSquare
+                                aria-hidden="true"
+                                className="size-3.5"
+                              />
+                              Write review
+                            </button>
+                          ))}
+                      </td>
+                    </tr>
+                    {reviewBookingId === booking.id && (
+                      <tr key={`${booking.id}-review-form`}>
+                        <td className="border-t border-slate-100 px-4 py-5" colSpan={8}>
+                          <form
+                            className="mx-auto max-w-2xl space-y-4"
+                            onSubmit={(event) => void submitReview(event)}
+                          >
+                            <div>
+                              <h3 className="font-extrabold text-[#08162d]">
+                                Review {booking.equipmentName}
+                              </h3>
+                              <p className="mt-1 text-sm text-slate-500">
+                                Your review will be published with your account
+                                name.
+                              </p>
+                            </div>
+                            <fieldset>
+                              <legend className="mb-2 text-sm font-bold text-[#08162d]">
+                                Your rating
+                              </legend>
+                              <div
+                                aria-label="Rating from 1 to 5 stars"
+                                className="flex items-center gap-1"
+                                role="group"
+                              >
+                                {Array.from({ length: 5 }, (_, index) => {
+                                  const rating = index + 1;
+                                  return (
+                                    <button
+                                      aria-label={`${rating} star${rating === 1 ? "" : "s"}`}
+                                      aria-pressed={reviewRating === rating}
+                                      className="rounded p-1 text-amber-400 transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+                                      key={rating}
+                                      onClick={() => setReviewRating(rating)}
+                                      type="button"
+                                    >
+                                      <Star
+                                        aria-hidden="true"
+                                        className={`size-7 ${
+                                          rating <= reviewRating
+                                            ? "fill-current"
+                                            : "fill-transparent text-slate-300"
+                                        }`}
+                                      />
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </fieldset>
+                            <label className="block">
+                              <span className="mb-2 block text-sm font-bold text-[#08162d]">
+                                Your review
+                              </span>
+                              <textarea
+                                className="min-h-28 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#08162d] outline-none transition focus:border-[#e96a32] focus:bg-white focus:ring-4 focus:ring-[#e96a32]/10"
+                                maxLength={1200}
+                                minLength={2}
+                                onChange={(event) =>
+                                  setReviewComment(event.target.value)
+                                }
+                                placeholder="Share your experience with this equipment rental."
+                                required
+                                value={reviewComment}
+                              />
+                              <span className="mt-1 block text-right text-xs text-slate-400">
+                                {reviewComment.length}/1200
+                              </span>
+                            </label>
+                            {reviewError && (
+                              <p className="text-sm font-semibold text-red-700" role="alert">
+                                {reviewError}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap justify-end gap-2">
+                              <button
+                                className="rounded-lg px-4 py-2 text-sm font-bold text-slate-500 transition hover:bg-slate-100"
+                                onClick={() => {
+                                  setReviewBookingId(null);
+                                  setReviewError(null);
+                                }}
+                                type="button"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="inline-flex items-center gap-2 rounded-lg bg-[#08162d] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#10294c] disabled:cursor-not-allowed disabled:opacity-60"
+                                disabled={
+                                  isSubmittingReview ||
+                                  reviewComment.trim().length < 2
+                                }
+                                type="submit"
+                              >
+                                <Send aria-hidden="true" className="size-3.5" />
+                                {isSubmittingReview
+                                  ? "Publishing..."
+                                  : "Publish review"}
+                              </button>
+                            </div>
+                          </form>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

@@ -6,7 +6,6 @@ import { ArrowUpRight, Clock3, MapPin } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  featuredEquipment,
   isFeaturedEquipment,
   type FeaturedEquipment,
 } from "@/data/featured-equipment";
@@ -77,9 +76,7 @@ export function RecentlyAdded() {
     return () => controller.abort();
   }, []);
 
-  const isShowingDemo =
-    state.status === "success" && state.items.length === 0;
-  const items = isShowingDemo ? featuredEquipment.slice(0, 3) : state.items;
+  const items = state.status === "success" ? state.items : [];
   const leadItem = items[0];
   const compactItems = items.slice(1);
 
@@ -142,19 +139,6 @@ export function RecentlyAdded() {
             {state.message}
           </motion.p>
         )}
-        {isShowingDemo && (
-          <motion.p
-            aria-live="polite"
-            className="mb-5 rounded-xl border border-[#087e78]/20 bg-white/70 px-4 py-3 text-center text-sm text-[#087e78]"
-            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.3 }}
-          >
-            Demo preview: sample listings are shown because no approved
-            equipment is available yet.
-          </motion.p>
-        )}
-
         {leadItem && (
           <div className="grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
             <motion.article
@@ -174,7 +158,7 @@ export function RecentlyAdded() {
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,22,45,0.94)_0%,rgba(8,22,45,0.68)_46%,rgba(8,22,45,0.08)_100%),linear-gradient(0deg,rgba(8,22,45,0.55),transparent_55%)]" />
               <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/20 bg-[#08162d]/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur sm:left-8 sm:top-8">
                 <span className="size-2 rounded-full bg-[#75d6c3] shadow-[0_0_14px_#75d6c3]" />
-                {isShowingDemo ? "Demo spotlight" : "New spotlight"}
+                New spotlight
               </div>
 
               <div className="absolute inset-x-5 bottom-6 max-w-lg sm:inset-x-8 sm:bottom-8">
@@ -195,20 +179,14 @@ export function RecentlyAdded() {
                     </span>
                     <span className="ml-2 text-sm text-white/60">/ day</span>
                   </p>
-                  {isShowingDemo ? (
-                    <span className="rounded-full border border-white/20 px-4 py-2 text-xs font-bold text-white/80">
-                      Sample
-                    </span>
-                  ) : (
-                    <Link
-                      aria-label={`View ${leadItem.name} details`}
-                      className="gearrent-primary-action gearrent-primary-action--compact group"
-                      href={`/equipment/${encodeURIComponent(leadItem.id)}`}
-                    >
-                      View listing
-                      <ArrowUpRight aria-hidden="true" className="size-4" />
-                    </Link>
-                  )}
+                  <Link
+                    aria-label={`View ${leadItem.name} details`}
+                    className="gearrent-primary-action gearrent-primary-action--compact group"
+                    href={`/equipment/${encodeURIComponent(leadItem.id)}`}
+                  >
+                    View listing
+                    <ArrowUpRight aria-hidden="true" className="size-4" />
+                  </Link>
                 </div>
               </div>
             </motion.article>

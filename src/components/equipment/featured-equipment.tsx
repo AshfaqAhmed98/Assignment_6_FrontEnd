@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  featuredDemoEquipment,
-  featuredEquipment,
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
 } from "@/data/featured-equipment";
@@ -52,18 +50,7 @@ export function FeaturedEquipment() {
   const [activeEquipmentId, setActiveEquipmentId] = useState<string | null>(
     null,
   );
-  const isShowingDemoItems =
-    state.status === "success" && state.items.length === 0;
-  const supplementalDemoItems =
-    state.status === "success" && !isShowingDemoItems
-      ? featuredDemoEquipment.slice(0, Math.max(0, 6 - state.items.length))
-      : [];
-  const displayedItems =
-    state.status === "success"
-      ? isShowingDemoItems
-        ? featuredEquipment
-        : [...state.items, ...supplementalDemoItems]
-      : [];
+  const displayedItems = state.status === "success" ? state.items : [];
   const equipmentRows: FeaturedEquipmentItem[][] = [];
   for (let index = 0; index < displayedItems.length; index += 3) {
     equipmentRows.push(displayedItems.slice(index, index + 3));
@@ -240,19 +227,6 @@ export function FeaturedEquipment() {
             {state.message}
           </motion.p>
         )}
-        {isShowingDemoItems && (
-          <motion.p
-            aria-live="polite"
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-5 rounded-lg border border-[#ffd277] bg-[#fff8e7] px-4 py-3 text-center text-sm text-slate-700"
-            initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
-            role="status"
-            transition={{ duration: reduceMotion ? 0 : 0.3 }}
-          >
-            Demo preview: sample listings are shown because no approved
-            equipment is available yet.
-          </motion.p>
-        )}
         {displayedItems.length > 0 && (
           <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
             {equipmentRows.map((row, rowIndex) => (
@@ -357,27 +331,21 @@ export function FeaturedEquipment() {
                               </span>
                               <span className="ml-1 text-xs">/ day</span>
                             </p>
-                            {isShowingDemoItems || item.isDemo ? (
-                              <span className="rounded-md border border-[#ffd277] bg-[#fff8e7] px-2 py-1.5 text-xs font-bold text-[#7a4b00]">
-                                Demo listing
-                              </span>
-                            ) : (
-                              <button
-                                aria-busy={openingEquipmentId === item.id}
-                                className="inline-flex h-9 items-center gap-1 rounded-md border border-[#e96a32] px-2 text-xs font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white disabled:cursor-wait disabled:opacity-60"
-                                disabled={openingEquipmentId !== null}
-                                onClick={() => void viewDetails(item.id)}
-                                type="button"
-                              >
-                                {openingEquipmentId === item.id
-                                  ? "Checking..."
-                                  : "View Details"}
-                                <ArrowRight
-                                  aria-hidden="true"
-                                  className="size-3.5"
-                                />
-                              </button>
-                            )}
+                            <button
+                              aria-busy={openingEquipmentId === item.id}
+                              className="inline-flex h-9 items-center gap-1 rounded-md border border-[#e96a32] px-2 text-xs font-bold text-[#c94f1c] transition-colors hover:bg-[#e96a32] hover:text-white disabled:cursor-wait disabled:opacity-60"
+                              disabled={openingEquipmentId !== null}
+                              onClick={() => void viewDetails(item.id)}
+                              type="button"
+                            >
+                              {openingEquipmentId === item.id
+                                ? "Checking..."
+                                : "View Details"}
+                              <ArrowRight
+                                aria-hidden="true"
+                                className="size-3.5"
+                              />
+                            </button>
                           </div>
                         </div>
                       </div>

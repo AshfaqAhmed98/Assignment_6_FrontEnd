@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { requestAuthAccessToken } from "@/lib/auth-token";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
+import { ThemeToggle } from "@/components/theme/theme-provider";
 
 type RegistrationNotice = {
   type: "success" | "error" | "info";
@@ -260,7 +261,7 @@ export default function RegisterPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#f7f5f0] text-[#122035]">
+    <main className="auth-page auth-page--register min-h-screen bg-[#f7f5f0] text-[#122035]">
       {notice && (
         <div
           aria-live={notice.type === "error" ? "assertive" : "polite"}
@@ -410,12 +411,15 @@ export default function RegisterPage() {
           </div>
         </section>
 
-        <section className="relative flex items-center justify-center overflow-hidden px-5 py-12 sm:px-10 lg:px-14 lg:py-16">
+        <section className="auth-form-panel relative flex items-center justify-center overflow-hidden px-5 py-12 sm:px-10 lg:px-14 lg:py-16">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-36 -top-32 size-96 rounded-full bg-[#e96a32]/[0.06] blur-3xl"
           />
           <div className="relative w-full max-w-[470px]">
+            <div className="mb-5 flex justify-end">
+              <ThemeToggle />
+            </div>
             <div className="mb-8">
               <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#c94f1c]">
                 Your next chapter starts here
