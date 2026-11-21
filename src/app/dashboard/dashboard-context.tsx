@@ -141,13 +141,15 @@ function loginUrl() {
   return `/login?redirect=${encodeURIComponent(destination)}`;
 }
 
-function getInitials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("") || "G";
+export function getInitials(name: string) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("") || "G"
+  );
 }
 
 function LoadingPanel({ message }: { message: string }) {
@@ -190,8 +192,19 @@ function OwnerDashboardHero({ user }: { user: DashboardUser }) {
           </p>
         </div>
         <div className="flex min-w-64 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#f3a65c] text-sm font-black text-[#172a21]">
-            {getInitials(user.name)}
+          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3a65c] text-sm font-black text-[#172a21]">
+            {user.image ? (
+              <Image
+                alt=""
+                className="size-full object-cover"
+                height={44}
+                src={user.image}
+                unoptimized
+                width={44}
+              />
+            ) : (
+              getInitials(user.name)
+            )}
           </span>
           <span className="min-w-0">
             <span className="block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#f3a65c]">
@@ -235,7 +248,7 @@ function AdminDashboardHero({ user }: { user: DashboardUser }) {
           </p>
         </div>
         <div className="flex min-w-64 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur">
-          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#a9bbff] text-sm font-black text-[#17213d]">
+          <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3a65c] text-sm font-black text-[#172a21]">
             {user.image ? (
               <Image
                 alt=""
@@ -694,7 +707,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
               </div>
               {state.status === "ready" && (
                 <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <span className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#ffd277] text-sm font-black text-[#08162d]">
+                  <span className="flex size-11 items-center justify-center overflow-hidden rounded-xl bg-[#f3a65c] text-sm font-black text-[#172a21]">
                     {state.user.image ? (
                       <Image
                         alt=""

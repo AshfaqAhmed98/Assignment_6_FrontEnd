@@ -10,7 +10,7 @@ import {
   Save,
   UserRound,
 } from "lucide-react";
-import { useDashboard } from "../dashboard-context";
+import { getInitials, useDashboard } from "../dashboard-context";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
 import {
   apiBaseUrl,
@@ -31,6 +31,7 @@ export default function ProfilePage() {
   const [image, setImage] = useState(user.image ?? "");
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
   const [notice, setNotice] = useState<ProfileNotice | null>(null);
   const completedProfileFields = [
     Boolean(name.trim()),
@@ -40,6 +41,27 @@ export default function ProfilePage() {
     Boolean(address.trim()),
   ].filter(Boolean).length;
   const profileCompletion = Math.round((completedProfileFields / 5) * 100);
+
+  async function persistProfileImage(nextImage: string) {
+    const response = await fetch(`${apiBaseUrl}/api/auth/update-user`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image: nextImage }),
+    });
+    const payload = await readResponseBody(response);
+    if (!response.ok) {
+      throw new Error(
+        getResponseMessage(payload, "Could not update your profile image."),
+      );
+    }
+
+    await refreshUser();
+    setImage(nextImage);
+  }
 
   async function handlePhotoChange(file: File | undefined) {
     if (!file) {
@@ -88,10 +110,11 @@ export default function ProfilePage() {
       ) {
         throw new Error("The image service returned an invalid profile URL.");
       }
-      setImage(payload.url);
+
+      await persistProfileImage(payload.url);
       setNotice({
         type: "success",
-        message: "Image uploaded. Save your profile to apply it.",
+        message: "Profile picture updated across your dashboards.",
       });
     } catch (error) {
       setNotice({
@@ -103,6 +126,29 @@ export default function ProfilePage() {
       });
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function handleRemoveImage() {
+    setNotice(null);
+    setIsRemovingImage(true);
+
+    try {
+      await persistProfileImage("");
+      setNotice({
+        type: "success",
+        message: "Profile picture removed from your dashboards.",
+      });
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Could not remove your profile picture.",
+      });
+    } finally {
+      setIsRemovingImage(false);
     }
   }
 
@@ -149,7 +195,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({
           name: trimmedName,
-          image: image.trim() || null,
+          image: image.trim(),
           phoneNumber: trimmedPhone,
           address: trimmedAddress,
         }),
@@ -298,7 +344,7 @@ export default function ProfilePage() {
 
           <button
             className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[linear-gradient(115deg,#ffd277_0%,#ffb45c_52%,#e96a32_100%)] px-6 text-sm font-extrabold text-[#08162d] shadow-[0_8px_20px_rgba(233,106,50,0.2)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(233,106,50,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c94f1c] disabled:cursor-wait disabled:opacity-60"
-            disabled={isSaving || isUploading}
+            disabled={isSaving || isUploading || isRemovingImage}
             type="submit"
           >
             {isSaving ? (
@@ -340,10 +386,10 @@ export default function ProfilePage() {
           <p className="text-sm font-extrabold text-[#08162d]">Profile Image</p>
           <ImageDropzone
             className="mt-4 p-1"
-            disabled={isUploading || isSaving}
+            disabled={isUploading || isSaving || isRemovingImage}
             onFileDrop={(file) => void handlePhotoChange(file)}
           >
-            <div className="mx-auto flex size-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#08162d] text-[#ffd277] shadow-[0_8px_24px_rgba(8,22,45,0.15)]">
+            <div className="mx-auto flex size-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#f3a65c] text-3xl font-black text-[#172a21] shadow-[0_8px_24px_rgba(8,22,45,0.15)]">
               {image ? (
                 <Image
                   alt="Profile preview"
@@ -354,7 +400,7 @@ export default function ProfilePage() {
                   width={112}
                 />
               ) : (
-                <UserRound aria-hidden="true" className="size-10" />
+                getInitials(name)
               )}
             </div>
             <label className="mt-5 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e96a32]/30 bg-white px-3 text-center text-xs font-extrabold text-[#c94f1c] transition hover:bg-[#fff8e7] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e96a32]">
@@ -370,7 +416,7 @@ export default function ProfilePage() {
               <input
                 accept="image/gif,image/jpeg,image/png,image/webp"
                 className="sr-only"
-                disabled={isUploading || isSaving}
+                disabled={isUploading || isSaving || isRemovingImage}
                 onChange={(event) => {
                   const input = event.currentTarget;
                   const file = input.files?.[0];
@@ -391,6 +437,7 @@ export default function ProfilePage() {
             Or paste an image URL
             <input
               className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#08162d] outline-none transition focus:border-[#e96a32] focus:ring-4 focus:ring-[#e96a32]/10"
+              disabled={isUploading || isSaving || isRemovingImage}
               id="dashboard-profile-image"
               onChange={(event) => setImage(event.target.value)}
               placeholder="https://…"
@@ -404,11 +451,19 @@ export default function ProfilePage() {
           {image && (
             <button
               className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 underline decoration-slate-300 underline-offset-4 transition hover:text-[#c94f1c]"
-              onClick={() => setImage("")}
+              disabled={isSaving || isUploading || isRemovingImage}
+              onClick={() => void handleRemoveImage()}
               type="button"
             >
-              <Check aria-hidden="true" className="size-3.5" />
-              Remove image
+              {isRemovingImage ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-3.5 animate-spin"
+                />
+              ) : (
+                <Check aria-hidden="true" className="size-3.5" />
+              )}
+              {isRemovingImage ? "Removing image…" : "Remove image"}
             </button>
           )}
         </aside>

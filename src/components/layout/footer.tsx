@@ -68,25 +68,25 @@ const socialLinks: Array<{
 }> = [
   {
     label: "Facebook",
-    href: "https://facebook.com",
+    href: "https://www.facebook.com/ash.k.siam",
     icon: "facebook",
     color: "#75d6c3",
   },
   {
     label: "Instagram",
-    href: "https://instagram.com",
+    href: "https://www.instagram.com/ash_k_siam/",
     icon: "instagram",
     color: "#ffc45b",
   },
   {
     label: "GitHub",
-    href: "https://github.com/AshfaqAhmed98/Assignment_6_FrontEnd",
+    href: "https://github.com/AshfaqAhmed98",
     icon: "github",
     color: "#fb9060",
   },
   {
     label: "Location",
-    href: "https://maps.google.com/?q=Dhaka,Bangladesh",
+    href: "https://maps.app.goo.gl/tZGuBaBnWGEwUcuz6?g_st=an",
     icon: "location",
     color: "#75d6c3",
   },

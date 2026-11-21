@@ -238,7 +238,8 @@ export function HeroSlideshow() {
     <section
       aria-label="Featured equipment rentals"
       aria-roledescription="carousel"
-      className="relative isolate flex min-h-[680px] items-center overflow-hidden bg-slate-950 pt-20 text-white sm:min-h-[740px]"
+      className="relative isolate flex min-h-[680px] scroll-mt-20 items-center overflow-hidden bg-slate-950 pt-20 text-white sm:min-h-[740px]"
+      id="home-banner"
     >
       <AnimatePresence initial={false}>
         <motion.div

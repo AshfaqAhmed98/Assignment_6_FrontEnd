@@ -179,7 +179,7 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-it-works-heading"
-      className="relative isolate overflow-hidden bg-[#08162d] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8"
+      className="relative isolate scroll-mt-20 overflow-hidden bg-[#08162d] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8"
       id="how-it-works-title"
     >
       <div

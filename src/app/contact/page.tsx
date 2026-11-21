@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 const contactEmail = "ashkcm98@gmail.com";
+const contactEmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}`;
 const contactPhone = "+880 1866 206500";
 const contactPhoneHref = "+8801866206500";
 const contactWhatsAppHref = "https://wa.me/8801866206500";
@@ -87,7 +88,9 @@ export default function ContactPage() {
                 <div className="mt-7 grid gap-3">
                   <a
                     className="group flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75d6c3]"
-                    href={`mailto:${contactEmail}`}
+                    href={contactEmailHref}
+                    rel="noreferrer"
+                    target="_blank"
                   >
                     <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#75d6c3]/15 text-[#a7f3e5]">
                       <Mail aria-hidden="true" className="size-5" />

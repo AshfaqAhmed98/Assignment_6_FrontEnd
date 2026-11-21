@@ -358,12 +358,12 @@ export function Navbar() {
   };
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50 border-b border-white/15 bg-gradient-to-b from-slate-950/60 via-slate-950/25 to-transparent">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#08162d]/95 shadow-[0_8px_24px_rgba(8,22,45,0.12)] backdrop-blur-md">
       <div className="mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 xl:grid-cols-[1fr_auto_1fr] xl:px-8">
         <Link
           aria-label="GearRent home"
           className="flex shrink-0 items-center"
-          href="/"
+          href="/#home-banner"
         >
           <Image
             alt=""
