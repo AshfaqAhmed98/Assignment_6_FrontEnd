@@ -237,7 +237,7 @@ export function BookingModal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-[#08162d]/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] grid place-items-center overflow-y-auto overscroll-contain bg-[#08162d]/70 p-2 backdrop-blur-sm sm:p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !isSubmitting) {
           onClose();
@@ -247,16 +247,16 @@ export function BookingModal({
       <section
         aria-labelledby="booking-modal-title"
         aria-modal="true"
-        className="my-auto max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-8"
+        className="my-auto max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-2xl bg-white p-4 shadow-2xl sm:max-h-[92vh] sm:p-8"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#087e78]">
               Secure Stripe checkout
             </p>
             <h2
-              className="mt-2 text-2xl font-black text-[#08162d]"
+              className="mt-2 break-words text-xl font-black leading-tight text-[#08162d] sm:text-2xl"
               id="booking-modal-title"
             >
               Book {equipment.name}
@@ -277,7 +277,7 @@ export function BookingModal({
           <label className="text-sm font-semibold text-slate-700">
             Rental start date
             <input
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               min={initialStartDate}
               onChange={(event) => setStartDate(event.target.value)}
               required
@@ -288,7 +288,7 @@ export function BookingModal({
           <label className="text-sm font-semibold text-slate-700">
             Rental end / return date
             <input
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               min={startDate || initialStartDate}
               onChange={(event) => setEndDate(event.target.value)}
               required
@@ -299,7 +299,7 @@ export function BookingModal({
           <label className="text-sm font-semibold text-slate-700">
             Rental type
             <select
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               onChange={(event) => {
                 const value = event.target.value;
                 setRentalType(
@@ -316,7 +316,7 @@ export function BookingModal({
           <label className="text-sm font-semibold text-slate-700">
             Required quantity
             <input
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               min="1"
               onChange={(event) =>
                 setRequiredQuantity(Math.max(1, Number(event.target.value) || 1))
@@ -330,7 +330,7 @@ export function BookingModal({
             Contact number
             <input
               autoComplete="tel"
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               maxLength={30}
               onChange={(event) => setContactNumber(event.target.value)}
               pattern="[+0-9()\\-\\s]{7,30}"
@@ -343,7 +343,7 @@ export function BookingModal({
             Delivery address
             <textarea
               autoComplete="street-address"
-              className="mt-2 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               maxLength={500}
               onChange={(event) => setDeliveryAddress(event.target.value)}
               required
@@ -353,7 +353,7 @@ export function BookingModal({
           <label className="text-sm font-semibold text-slate-700 sm:col-span-2">
             Additional notes (optional)
             <textarea
-              className="mt-2 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10"
+              className="mt-2 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               maxLength={2000}
               onChange={(event) => setAdditionalNotes(event.target.value)}
               value={additionalNotes}
@@ -361,8 +361,8 @@ export function BookingModal({
           </label>
 
           <div className="rounded-xl border border-slate-200 bg-[#f7f8fa] p-4 sm:col-span-2">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="text-slate-600">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <span className="break-words text-slate-600">
                 {durationDays || 0} rental day(s) · {billedUnits}{" "}
                 {rentalType} period(s) · {requiredQuantity} item(s)
               </span>
@@ -416,7 +416,7 @@ export function BookingModal({
           )}
 
           <button
-            className="gearrent-primary-action sm:col-span-2"
+            className="gearrent-primary-action min-h-12 w-full sm:col-span-2"
             disabled={
               isSubmitting ||
               currentAvailability.status !== "ready" ||

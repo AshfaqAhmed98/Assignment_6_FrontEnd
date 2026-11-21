@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowRight, LayoutDashboard, LogOut } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/theme-provider";
@@ -269,6 +269,7 @@ function AccountActions({
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -341,6 +342,7 @@ export function Navbar() {
 
       setAuthState("unauthenticated");
       window.dispatchEvent(new Event("gearrent:auth-changed"));
+      router.replace("/");
     } catch (error) {
       setAuthError(
         error instanceof Error ? error.message : "Could not sign out.",
@@ -358,7 +360,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#08162d]/95 shadow-[0_8px_24px_rgba(8,22,45,0.12)] backdrop-blur-md">
+    <>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#08162d]/95 shadow-[0_8px_24px_rgba(8,22,45,0.12)] backdrop-blur-md">
       <div className="mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 xl:grid-cols-[1fr_auto_1fr] xl:px-8">
         <Link
           aria-label="GearRent home"
@@ -464,7 +467,7 @@ export function Navbar() {
             {isMobileMenuOpen && (
               <motion.div
                 animate={{ opacity: 1, height: "auto", scale: 1, y: 0 }}
-                className="absolute right-0 top-full z-50 mt-3 w-72 origin-top-right overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_20px_50px_rgba(8,22,45,0.3)]"
+                className="absolute right-0 top-full z-50 mt-3 max-h-[calc(100dvh-7rem)] w-72 max-w-[calc(100vw-2rem)] origin-top-right overflow-y-auto overscroll-contain rounded-2xl border border-white/70 bg-white shadow-[0_20px_50px_rgba(8,22,45,0.3)]"
                 exit={
                   reduceMotion
                     ? { opacity: 0 }
@@ -539,6 +542,25 @@ export function Navbar() {
           </AnimatePresence>
         </div>
       </div>
-    </header>
+      </header>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.button
+            animate={{ opacity: 1 }}
+            aria-label="Dismiss navigation menu"
+            className="fixed inset-x-0 bottom-0 top-20 z-40 cursor-default touch-none bg-[#08162d]/55 backdrop-blur-sm xl:hidden"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              mobileMenuButtonRef.current?.focus();
+            }}
+            tabIndex={-1}
+            transition={{ duration: reduceMotion ? 0.01 : 0.18 }}
+            type="button"
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }

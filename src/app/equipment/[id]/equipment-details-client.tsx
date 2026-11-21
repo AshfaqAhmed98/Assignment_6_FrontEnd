@@ -350,7 +350,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
           className="pointer-events-none absolute -bottom-56 left-1/4 size-[30rem] rounded-full bg-[#75d6c3]/10 blur-[120px]"
         />
         <Navbar />
-        <div className="relative mx-auto max-w-7xl px-4 pb-36 pt-32 sm:px-6 sm:pb-40 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8">
           <Link
             className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/85 backdrop-blur transition-colors hover:border-[#ffd277]/50 hover:text-[#ffd277] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277]"
             href="/equipment"
@@ -364,21 +364,21 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
           <p className="mt-8 text-xs font-extrabold uppercase tracking-[0.24em] text-[#75d6c3]">
             GearRent / Equipment
           </p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-black tracking-tight text-white sm:text-6xl">
+          <h2 className="mt-3 max-w-2xl break-words text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl xl:text-6xl">
             Equipment details
           </h2>
         </div>
       </section>
 
-      <main className="relative mx-auto -mt-28 max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      <main className="relative mx-auto -mt-24 max-w-7xl px-3 pb-16 sm:-mt-28 sm:px-6 sm:pb-20 lg:px-8">
         {state.status === "loading" && (
           <div
             aria-label="Loading equipment details"
-            className="grid min-h-[560px] animate-pulse overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl lg:grid-cols-2"
+            className="grid min-h-[420px] animate-pulse overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:min-h-[560px] sm:rounded-[2rem] lg:grid-cols-2"
             role="status"
           >
-            <div className="min-h-72 bg-slate-200 lg:min-h-[560px]" />
-            <div className="space-y-5 p-7 sm:p-10">
+            <div className="min-h-64 bg-slate-200 sm:min-h-[480px] lg:min-h-[560px]" />
+            <div className="space-y-5 p-4 sm:p-10">
               <div className="h-5 w-28 rounded-full bg-slate-200" />
               <div className="h-12 w-4/5 rounded-xl bg-slate-200" />
               <div className="h-20 rounded-2xl bg-slate-100" />
@@ -391,7 +391,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
         {state.status === "error" && (
           <div
             aria-live="assertive"
-            className="rounded-3xl border border-red-200 bg-white p-8 shadow-xl sm:p-12"
+            className="rounded-2xl border border-red-200 bg-white p-5 shadow-xl sm:rounded-3xl sm:p-12"
             role="alert"
           >
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#c94f1c]">
@@ -415,8 +415,8 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
 
         {state.status === "success" && (
           <>
-            <article className="grid overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-[0_36px_100px_-48px_rgba(8,22,45,0.55)] lg:grid-cols-[1.02fr_0.98fr]">
-              <div className="group relative min-h-[340px] overflow-hidden bg-[#102139] sm:min-h-[480px] lg:min-h-[650px]">
+            <article className="grid min-w-0 overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_36px_100px_-48px_rgba(8,22,45,0.55)] sm:rounded-[2rem] lg:grid-cols-[1.02fr_0.98fr]">
+              <div className="group relative min-h-[280px] overflow-hidden bg-[#102139] sm:min-h-[480px] lg:min-h-[650px]">
                 <Image
                   alt={state.item.name}
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
@@ -468,7 +468,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                 </div>
               </div>
 
-              <div className="flex flex-col p-6 sm:p-9 lg:p-11">
+              <div className="flex min-w-0 flex-col p-4 sm:p-9 lg:p-11">
                 <div className="flex items-center justify-between gap-4">
                   <span className="inline-flex min-h-8 items-center rounded-full bg-[#fff1e9] px-3 text-xs font-extrabold uppercase tracking-[0.14em] text-[#c94f1c]">
                     {state.item.category}
@@ -500,7 +500,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                   )}
                 </div>
 
-                <h1 className="mt-5 text-3xl font-black leading-[1.08] tracking-tight text-[#08162d] sm:text-4xl xl:text-5xl">
+                <h1 className="mt-5 break-words text-2xl font-black leading-tight tracking-tight text-[#08162d] sm:text-4xl xl:text-5xl">
                   {state.item.name}
                 </h1>
                 <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
@@ -604,7 +604,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         BDT
                       </span>
                     </div>
-                    <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+                    <div className="mt-5 grid grid-cols-1 gap-2 min-[400px]:grid-cols-3 sm:gap-3">
                       <button
                         aria-label={`Book daily at ৳${formatRate(getRentalUnitRateMinor(state.item, "daily"))}`}
                         className="rounded-2xl bg-[#e96a32] p-3 text-left shadow-lg shadow-[#e96a32]/15 transition hover:-translate-y-0.5 hover:bg-[#f17840] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 sm:p-4"
@@ -615,7 +615,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         <span className="block text-xs font-bold text-white/80">
                           Daily
                         </span>
-                        <span className="mt-2 block text-lg font-black text-white sm:text-xl">
+                        <span className="mt-2 block text-base font-black text-white sm:text-xl">
                           ৳{formatRate(getRentalUnitRateMinor(state.item, "daily"))}
                         </span>
                         <span className="mt-1 block text-[10px] font-semibold text-white/75 sm:text-xs">
@@ -632,7 +632,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         <span className="block text-xs font-bold text-white/60">
                           Weekly
                         </span>
-                        <span className="mt-2 block text-lg font-black text-white sm:text-xl">
+                        <span className="mt-2 block text-base font-black text-white sm:text-xl">
                           ৳
                           {formatRate(getRentalUnitRateMinor(state.item, "weekly"))}
                         </span>
@@ -650,7 +650,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
                         <span className="block text-xs font-bold text-white/60">
                           Monthly
                         </span>
-                        <span className="mt-2 block text-lg font-black text-white sm:text-xl">
+                        <span className="mt-2 block text-base font-black text-white sm:text-xl">
                           ৳
                           {formatRate(getRentalUnitRateMinor(state.item, "monthly"))}
                         </span>

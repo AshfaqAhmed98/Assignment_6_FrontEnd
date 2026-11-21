@@ -352,7 +352,7 @@ export function HeroSlideshow() {
                 </Link>
                 <Link
                   className="inline-flex h-12 items-center rounded-md border border-white/50 bg-white/5 px-6 text-sm font-bold text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  href="/how-it-works"
+                  href="/#how-it-works-title"
                 >
                   How it works
                 </Link>
