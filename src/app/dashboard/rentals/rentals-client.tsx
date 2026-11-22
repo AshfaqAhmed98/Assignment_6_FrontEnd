@@ -375,7 +375,7 @@ export default function MyRentalsPage() {
                         {booking.equipmentId ? (
                           <Link
                             aria-label={`View details for ${booking.equipmentName}`}
-                            className="underline decoration-slate-300 underline-offset-4 transition-colors hover:text-[#c94f1c] hover:decoration-[#c94f1c] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+                            className="no-underline transition-colors hover:text-[#c94f1c] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
                             href={`/equipment/${encodeURIComponent(booking.equipmentId)}`}
                           >
                             {booking.equipmentName}
