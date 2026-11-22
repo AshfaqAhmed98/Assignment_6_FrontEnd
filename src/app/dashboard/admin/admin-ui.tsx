@@ -2,12 +2,16 @@
 
 import { AlertTriangle } from "lucide-react";
 import type { ReactNode } from "react";
-import { EquipmentLoader } from "@/components/ui/equipment-loader";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 
-export function AdminLoading({ message }: { message: string }) {
-  return (
-    <EquipmentLoader className="min-h-80 sm:min-h-96" message={message} />
-  );
+export function AdminLoading({
+  message,
+  variant = "table",
+}: {
+  message: string;
+  variant?: "overview" | "table";
+}) {
+  return <DashboardDataSkeleton label={message} variant={variant} />;
 }
 
 export function AdminError({

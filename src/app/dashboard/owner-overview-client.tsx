@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "./dashboard-context";
 import { ApprovalGauge } from "./approval-gauge";
 import { PerformanceChart } from "./performance-chart";
@@ -396,14 +397,10 @@ export default function OwnerOverviewClient() {
       </section>
 
       {state.status === "loading" && (
-        <div
-          aria-live="polite"
-          className="flex min-h-40 items-center justify-center gap-3 rounded-2xl border border-[#e8dfce] bg-white text-sm font-semibold text-slate-500"
-          role="status"
-        >
-          <span className="size-4 animate-spin rounded-full border-2 border-[#d97038] border-t-transparent" />
-          Loading your inventory and rentals...
-        </div>
+        <DashboardDataSkeleton
+          label="Loading your inventory and rentals..."
+          variant="overview"
+        />
       )}
       {state.status === "error" && (
         <div

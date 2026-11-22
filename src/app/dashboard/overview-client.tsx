@@ -11,12 +11,12 @@ import {
   Clock3,
   Compass,
   Heart,
-  LoaderCircle,
   Sparkles,
   WalletCards,
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "./dashboard-context";
 import AdminOverviewClient from "./admin-overview-client";
 import OwnerOverviewClient from "./owner-overview-client";
@@ -313,14 +313,10 @@ export default function DashboardPage() {
       </motion.section>
 
       {state.status === "loading" && (
-        <div
-          aria-live="polite"
-          className="flex min-h-52 items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white text-sm font-semibold text-slate-500"
-          role="status"
-        >
-          <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-          Gathering your account overview…
-        </div>
+        <DashboardDataSkeleton
+          label="Gathering your account overview..."
+          variant="overview"
+        />
       )}
       {state.status === "error" && (
         <div

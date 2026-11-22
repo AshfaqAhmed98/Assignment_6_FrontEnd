@@ -305,7 +305,10 @@ export default function AdminOverviewClient() {
       </section>
 
       {overview === null && !error && (
-        <AdminLoading message="Gathering platform activity..." />
+        <AdminLoading
+          message="Gathering platform activity..."
+          variant="overview"
+        />
       )}
       {error && (
         <AdminError

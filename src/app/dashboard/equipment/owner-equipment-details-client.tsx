@@ -8,7 +8,6 @@ import {
   ArrowUpRight,
   CalendarDays,
   ClipboardList,
-  LoaderCircle,
   MapPin,
   PackageCheck,
   Pencil,
@@ -16,6 +15,7 @@ import {
   Tag,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "../dashboard-context";
 import {
   parseOwnerEquipment,
@@ -95,14 +95,10 @@ export default function OwnerEquipmentDetailsClient({ id }: { id: string }) {
 
   if (state.status === "loading") {
     return (
-      <div
-        aria-live="polite"
-        className="flex min-h-72 items-center justify-center gap-3 text-sm font-semibold text-slate-500"
-        role="status"
-      >
-        <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-        Loading equipment details…
-      </div>
+      <DashboardDataSkeleton
+        label="Loading equipment details..."
+        variant="detail"
+      />
     );
   }
 

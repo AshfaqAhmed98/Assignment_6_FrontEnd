@@ -7,7 +7,6 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  LoaderCircle,
   MessageSquare,
   Search,
   Send,
@@ -15,6 +14,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "../dashboard-context";
 
 type CustomerBooking = {
@@ -228,14 +228,7 @@ export default function MyRentalsPage() {
       </div>
 
       {state.status === "loading" && (
-        <div
-          aria-live="polite"
-          className="flex min-h-56 items-center justify-center gap-3 text-sm font-semibold text-slate-500"
-          role="status"
-        >
-          <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-          Loading your bookings…
-        </div>
+        <DashboardDataSkeleton label="Loading your bookings..." />
       )}
       {state.status === "error" && (
         <p

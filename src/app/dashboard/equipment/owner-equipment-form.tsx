@@ -13,6 +13,7 @@ import {
   Upload,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
 import { useDashboard } from "../dashboard-context";
 import {
@@ -230,14 +231,10 @@ export default function OwnerEquipmentForm({
 
   if (isLoading) {
     return (
-      <div
-        aria-live="polite"
-        className="flex min-h-72 items-center justify-center gap-3 text-sm font-semibold text-slate-500"
-        role="status"
-      >
-        <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-        Loading equipment details…
-      </div>
+      <DashboardDataSkeleton
+        label="Loading equipment details..."
+        variant="detail"
+      />
     );
   }
 

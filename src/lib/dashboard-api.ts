@@ -2,6 +2,71 @@ export const apiBaseUrl = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 ).replace(/\/$/, "");
 
+const dashboardCacheDurationMs = 15_000;
+const dashboardCacheLimit = 32;
+const dashboardResponseCache = new Map<
+  string,
+  { expiresAt: number; payload: unknown }
+>();
+
+function dashboardCacheKey(accessToken: string, path: string) {
+  return `${accessToken}\0${path}`;
+}
+
+function invalidateDashboardCache(accessToken: string) {
+  const prefix = `${accessToken}\0`;
+  for (const key of dashboardResponseCache.keys()) {
+    if (key.startsWith(prefix)) {
+      dashboardResponseCache.delete(key);
+    }
+  }
+}
+
+function getCachedResponse(
+  payload: unknown,
+  signal?: AbortSignal | null,
+) {
+  if (!signal) {
+    return Promise.resolve(payload);
+  }
+
+  const createAbortError = () => {
+    const error = new Error("The request was aborted.");
+    error.name = "AbortError";
+    return error;
+  };
+
+  if (signal.aborted) {
+    return Promise.reject(signal.reason ?? createAbortError());
+  }
+
+  return new Promise((resolve, reject) => {
+    const cleanup = () => signal.removeEventListener("abort", onAbort);
+    const onAbort = () => {
+      cleanup();
+      reject(signal.reason ?? createAbortError());
+    };
+
+    signal.addEventListener("abort", onAbort, { once: true });
+    queueMicrotask(() => {
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      cleanup();
+      resolve(payload);
+    });
+  });
+}
+
+export function clearDashboardResponseCache() {
+  dashboardResponseCache.clear();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("gearrent:auth-changed", clearDashboardResponseCache);
+}
+
 export class DashboardApiError extends Error {
   constructor(
     message: string,
@@ -42,6 +107,18 @@ export async function dashboardRequest(
   accessToken: string,
   options: RequestInit = {},
 ) {
+  const method = options.method?.toUpperCase() ?? "GET";
+  const cacheKey = dashboardCacheKey(accessToken, path);
+  if (method === "GET" && !options.signal?.aborted) {
+    const cachedResponse = dashboardResponseCache.get(cacheKey);
+    if (cachedResponse && cachedResponse.expiresAt > Date.now()) {
+      return getCachedResponse(cachedResponse.payload, options.signal);
+    }
+    if (cachedResponse) {
+      dashboardResponseCache.delete(cacheKey);
+    }
+  }
+
   const headers = new Headers(options.headers);
   headers.set("Accept", "application/json");
   headers.set("Authorization", `Bearer ${accessToken}`);
@@ -60,5 +137,22 @@ export async function dashboardRequest(
       response.status,
     );
   }
+
+  if (method === "GET") {
+    dashboardResponseCache.delete(cacheKey);
+    dashboardResponseCache.set(cacheKey, {
+      expiresAt: Date.now() + dashboardCacheDurationMs,
+      payload,
+    });
+    if (dashboardResponseCache.size > dashboardCacheLimit) {
+      const oldestKey = dashboardResponseCache.keys().next().value;
+      if (oldestKey !== undefined) {
+        dashboardResponseCache.delete(oldestKey);
+      }
+    }
+  } else {
+    invalidateDashboardCache(accessToken);
+  }
+
   return payload;
 }

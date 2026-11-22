@@ -30,7 +30,7 @@ import {
 import { motion, useReducedMotion } from "framer-motion";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { EquipmentLoader } from "@/components/ui/equipment-loader";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { apiBaseUrl } from "@/lib/dashboard-api";
 import { requestAuthAccessToken } from "@/lib/auth-token";
 import { DashboardRouteTransition } from "./dashboard-route-transition";
@@ -153,12 +153,7 @@ export function getInitials(name: string) {
 }
 
 function LoadingPanel({ message }: { message: string }) {
-  return (
-    <EquipmentLoader
-      className="min-h-72 rounded-3xl border border-border bg-card p-8 shadow-[0_20px_60px_-45px_rgba(8,22,45,0.5)]"
-      message={message}
-    />
-  );
+  return <DashboardDataSkeleton label={message} variant="overview" />;
 }
 
 function OwnerDashboardHero({ user }: { user: DashboardUser }) {

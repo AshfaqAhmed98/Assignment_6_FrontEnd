@@ -24,6 +24,7 @@ import {
 } from "framer-motion";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import {
   isFeaturedEquipment,
   type FeaturedEquipment,
@@ -771,9 +772,10 @@ export default function EquipmentListClient() {
           )}
 
           {state.status === "loading" && state.items.length === 0 && (
-            <p aria-live="polite" className="py-16 text-center text-slate-600">
-              Loading approved equipment...
-            </p>
+            <DashboardDataSkeleton
+              label="Loading approved equipment..."
+              variant="equipment"
+            />
           )}
 
           {state.status === "success" && state.items.length === 0 && (

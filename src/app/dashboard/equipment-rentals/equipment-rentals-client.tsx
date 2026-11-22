@@ -5,10 +5,10 @@ import Link from "next/link";
 import {
   CalendarDays,
   ClipboardList,
-  LoaderCircle,
   Search,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "../dashboard-context";
 
 type OwnerRental = {
@@ -224,14 +224,7 @@ export default function EquipmentRentalsClient() {
       </div>
 
       {state.status === "loading" && (
-        <div
-          aria-live="polite"
-          className="flex min-h-56 items-center justify-center gap-3 text-sm font-semibold text-slate-500"
-          role="status"
-        >
-          <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-          Loading equipment rentals…
-        </div>
+        <DashboardDataSkeleton label="Loading equipment rentals..." />
       )}
       {state.status === "error" && (
         <div

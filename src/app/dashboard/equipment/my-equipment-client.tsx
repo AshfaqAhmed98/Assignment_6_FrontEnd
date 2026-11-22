@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { dashboardRequest } from "@/lib/dashboard-api";
+import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
 import { useDashboard } from "../dashboard-context";
 import {
   parseOwnerEquipment,
@@ -199,14 +200,7 @@ export default function MyEquipmentClient() {
       )}
 
       {state.status === "loading" && (
-        <div
-          aria-live="polite"
-          className="flex min-h-56 items-center justify-center gap-3 text-sm font-semibold text-slate-500"
-          role="status"
-        >
-          <LoaderCircle aria-hidden="true" className="size-5 animate-spin text-[#e96a32]" />
-          Loading your listings…
-        </div>
+        <DashboardDataSkeleton label="Loading your listings..." />
       )}
       {state.status === "error" && (
         <div
