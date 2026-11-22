@@ -10,6 +10,7 @@ import {
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
 } from "@/data/featured-equipment";
+import { fetchWithRetry } from "@/lib/public-api";
 
 type FeaturedEquipmentState =
   | { status: "loading"; items: FeaturedEquipmentItem[] }
@@ -61,7 +62,7 @@ export function FeaturedEquipment() {
 
     async function loadFeaturedEquipment() {
       try {
-        const response = await fetch(
+        const response = await fetchWithRetry(
           `${apiBaseUrl}/api/equipment/featured`,
           {
             signal: controller.signal,

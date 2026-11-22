@@ -32,6 +32,7 @@ import {
   requestAuthAccessToken,
 } from "@/lib/auth-token";
 import { apiBaseUrl, dashboardRequest } from "@/lib/dashboard-api";
+import { fetchWithRetry } from "@/lib/public-api";
 import {
   isFeaturedEquipment,
   type FeaturedEquipment,
@@ -455,7 +456,7 @@ export default function EquipmentListClient() {
       }));
 
       try {
-        const response = await fetch(
+        const response = await fetchWithRetry(
           `${apiBaseUrl}/api/equipment?${params.toString()}`,
           { signal: controller.signal },
         );

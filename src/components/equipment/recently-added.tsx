@@ -9,6 +9,7 @@ import {
   isFeaturedEquipment,
   type FeaturedEquipment,
 } from "@/data/featured-equipment";
+import { fetchWithRetry } from "@/lib/public-api";
 
 const apiBaseUrl = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
@@ -31,7 +32,7 @@ export function RecentlyAdded() {
 
     async function loadItems() {
       try {
-        const response = await fetch(`${apiBaseUrl}/api/equipment/featured`, {
+        const response = await fetchWithRetry(`${apiBaseUrl}/api/equipment/featured`, {
           signal: controller.signal,
         });
         const payload: unknown = await response.json();
