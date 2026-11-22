@@ -68,14 +68,14 @@ function isRentalType(value: string): value is RentalType {
   return value === "daily" || value === "weekly" || value === "monthly";
 }
 
-function adjustPriceByOne(value: string, adjustment: -1 | 1): string {
+function adjustPriceByHundred(value: string, adjustment: -1 | 1): string {
   if (value === "") {
-    return adjustment > 0 ? String(adjustment) : value;
+    return adjustment > 0 ? "100" : value;
   }
 
   const price = Number(value);
   return Number.isFinite(price)
-    ? String(Math.max(0, price + adjustment))
+    ? String(Math.max(0, price + adjustment * 100))
     : value;
 }
 
@@ -778,7 +778,7 @@ export default function EquipmentListClient() {
                       setPage(1);
                     }}
                     placeholder="Min"
-                    step="any"
+                    step="100"
                     type="number"
                     value={minPrice}
                   />
@@ -787,7 +787,7 @@ export default function EquipmentListClient() {
                       aria-label="Increase minimum price"
                       className="equipment-price-stepper-button"
                       onClick={() => {
-                        setMinPrice((value) => adjustPriceByOne(value, 1));
+                        setMinPrice((value) => adjustPriceByHundred(value, 1));
                         setPage(1);
                       }}
                       type="button"
@@ -798,7 +798,7 @@ export default function EquipmentListClient() {
                       aria-label="Decrease minimum price"
                       className="equipment-price-stepper-button"
                       onClick={() => {
-                        setMinPrice((value) => adjustPriceByOne(value, -1));
+                        setMinPrice((value) => adjustPriceByHundred(value, -1));
                         setPage(1);
                       }}
                       type="button"
@@ -820,7 +820,7 @@ export default function EquipmentListClient() {
                       setPage(1);
                     }}
                     placeholder="Max"
-                    step="any"
+                    step="100"
                     type="number"
                     value={maxPrice}
                   />
@@ -829,7 +829,7 @@ export default function EquipmentListClient() {
                       aria-label="Increase maximum price"
                       className="equipment-price-stepper-button"
                       onClick={() => {
-                        setMaxPrice((value) => adjustPriceByOne(value, 1));
+                        setMaxPrice((value) => adjustPriceByHundred(value, 1));
                         setPage(1);
                       }}
                       type="button"
@@ -840,7 +840,7 @@ export default function EquipmentListClient() {
                       aria-label="Decrease maximum price"
                       className="equipment-price-stepper-button"
                       onClick={() => {
-                        setMaxPrice((value) => adjustPriceByOne(value, -1));
+                        setMaxPrice((value) => adjustPriceByHundred(value, -1));
                         setPage(1);
                       }}
                       type="button"
