@@ -27,6 +27,7 @@ import {
   AuthAccessTokenError,
   requestAuthAccessToken,
 } from "@/lib/auth-token";
+import { clearDashboardResponseCache } from "@/lib/dashboard-api";
 
 type EquipmentDetailsItem = FeaturedEquipmentItem & {
   totalQuantity: number;
@@ -310,6 +311,7 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
           getResponseMessage(payload, "Could not update your favorites."),
         );
       }
+      clearDashboardResponseCache();
       setIsFavorite((current) => !current);
     } catch (error) {
       setFavoriteError(

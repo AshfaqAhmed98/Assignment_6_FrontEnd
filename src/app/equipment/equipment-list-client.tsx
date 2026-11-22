@@ -11,6 +11,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Heart,
+  LoaderCircle,
   MapPin,
   PackageCheck,
   Search,
@@ -25,6 +27,11 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { DashboardDataSkeleton } from "@/components/ui/dashboard-data-skeleton";
+import {
+  AuthAccessTokenError,
+  requestAuthAccessToken,
+} from "@/lib/auth-token";
+import { apiBaseUrl, dashboardRequest } from "@/lib/dashboard-api";
 import {
   isFeaturedEquipment,
   type FeaturedEquipment,
@@ -56,10 +63,6 @@ type DropdownOption = {
   label: string;
   value: string;
 };
-
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-).replace(/\/$/, "");
 
 function isRentalType(value: string): value is RentalType {
   return value === "daily" || value === "weekly" || value === "monthly";
@@ -138,6 +141,27 @@ function isListingResponse(
   );
 }
 
+function isFavoriteEquipment(value: unknown): value is { id: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    typeof value.id === "string"
+  );
+}
+
+function isFavoriteEquipmentResponse(
+  value: unknown,
+): value is { items: { id: string }[] } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "items" in value &&
+    Array.isArray(value.items) &&
+    value.items.every(isFavoriteEquipment)
+  );
+}
+
 function getResponseMessage(payload: unknown, fallback: string) {
   if (
     typeof payload === "object" &&
@@ -148,6 +172,22 @@ function getResponseMessage(payload: unknown, fallback: string) {
     return payload.message;
   }
   return fallback;
+}
+
+function getUserRole(payload: unknown) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    !("user" in payload) ||
+    typeof payload.user !== "object" ||
+    payload.user === null ||
+    !("role" in payload.user) ||
+    typeof payload.user.role !== "string"
+  ) {
+    return null;
+  }
+
+  return payload.user.role;
 }
 
 function AnimatedDropdown({
@@ -386,6 +426,12 @@ export default function EquipmentListClient() {
     pageSize: 12,
     message: null,
   });
+  const [favoriteAccessToken, setFavoriteAccessToken] = useState<string | null>(
+    null,
+  );
+  const [favoriteIds, setFavoriteIds] = useState<Set<string> | null>(null);
+  const [favoriteActionId, setFavoriteActionId] = useState<string | null>(null);
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -466,6 +512,118 @@ export default function EquipmentListClient() {
     sort,
     page,
   ]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadFavoriteState() {
+      try {
+        const sessionResponse = await fetch(
+          `${apiBaseUrl}/api/auth/get-session`,
+          {
+            credentials: "include",
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+          },
+        );
+        if (sessionResponse.status === 401) {
+          return;
+        }
+        if (!sessionResponse.ok) {
+          throw new Error("Could not verify your account.");
+        }
+
+        let sessionPayload: unknown;
+        try {
+          sessionPayload = await sessionResponse.json();
+        } catch {
+          throw new Error("The authentication server returned an invalid session.");
+        }
+        if (getUserRole(sessionPayload) !== "Customer") {
+          return;
+        }
+
+        const accessToken = await requestAuthAccessToken(
+          apiBaseUrl,
+          controller.signal,
+        );
+        const payload = await dashboardRequest("/api/favorites", accessToken, {
+          signal: controller.signal,
+        });
+        if (!isFavoriteEquipmentResponse(payload)) {
+          throw new Error("The favorites service returned invalid equipment data.");
+        }
+
+        if (!controller.signal.aborted) {
+          setFavoriteAccessToken(accessToken);
+          setFavoriteIds(new Set(payload.items.map((item) => item.id)));
+        }
+      } catch (error) {
+        if (
+          !controller.signal.aborted &&
+          !(error instanceof AuthAccessTokenError && error.status === 401)
+        ) {
+          setFavoriteError(
+            error instanceof Error
+              ? error.message
+              : "Could not load your favorites.",
+          );
+        }
+      }
+    }
+
+    void loadFavoriteState();
+    const clearFavoriteState = () => {
+      controller.abort();
+      setFavoriteAccessToken(null);
+      setFavoriteIds(null);
+      setFavoriteActionId(null);
+      setFavoriteError(null);
+    };
+    window.addEventListener("gearrent:auth-changed", clearFavoriteState);
+
+    return () => {
+      controller.abort();
+      window.removeEventListener("gearrent:auth-changed", clearFavoriteState);
+    };
+  }, []);
+
+  async function toggleFavorite(itemId: string) {
+    if (!favoriteAccessToken || !favoriteIds || favoriteActionId) {
+      return;
+    }
+
+    const wasFavorite = favoriteIds.has(itemId);
+    setFavoriteActionId(itemId);
+    setFavoriteError(null);
+    try {
+      await dashboardRequest(
+        `/api/favorites/${encodeURIComponent(itemId)}`,
+        favoriteAccessToken,
+        { method: wasFavorite ? "DELETE" : "POST" },
+      );
+      setFavoriteIds((current) => {
+        if (!current) {
+          return current;
+        }
+        const next = new Set(current);
+        if (wasFavorite) {
+          next.delete(itemId);
+        } else {
+          next.add(itemId);
+        }
+        return next;
+      });
+    } catch (error) {
+      setFavoriteError(
+        error instanceof Error
+          ? error.message
+          : "Could not update your favorites.",
+      );
+    } finally {
+      setFavoriteActionId(null);
+    }
+  }
 
   const pageCount = Math.max(1, Math.ceil(state.total / state.pageSize));
 
@@ -771,6 +929,15 @@ export default function EquipmentListClient() {
             </p>
           )}
 
+          {favoriteError && (
+            <p
+              className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+              role="alert"
+            >
+              {favoriteError}
+            </p>
+          )}
+
           {state.status === "loading" && state.items.length === 0 && (
             <DashboardDataSkeleton
               label="Loading approved equipment..."
@@ -887,16 +1054,50 @@ export default function EquipmentListClient() {
                           <span className="mt-1 block">available today</span>
                         </p>
                       </div>
-                      <Link
-                        className="gearrent-primary-action group mt-5 w-full"
-                        href={`/equipment/${encodeURIComponent(item.id)}`}
-                      >
-                        View Details
-                        <ArrowRight
-                          aria-hidden="true"
-                          className="size-4 transition-transform group-hover:translate-x-1"
-                        />
-                      </Link>
+                      <div className="mt-5 flex items-center gap-2">
+                        <Link
+                          className="gearrent-primary-action group min-w-0 flex-1"
+                          href={`/equipment/${encodeURIComponent(item.id)}`}
+                        >
+                          View Details
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="size-4 transition-transform group-hover:translate-x-1"
+                          />
+                        </Link>
+                        {favoriteIds !== null && (
+                          <button
+                            aria-label={
+                              favoriteIds.has(item.id)
+                                ? `Remove ${item.name} from favorites`
+                                : `Add ${item.name} to favorites`
+                            }
+                            aria-pressed={favoriteIds.has(item.id)}
+                            className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32] disabled:cursor-wait disabled:opacity-60 ${
+                              favoriteIds.has(item.id)
+                                ? "border-[#e96a32]/30 bg-[#fff1e9] text-[#c94f1c]"
+                                : "border-slate-200 bg-white text-slate-500 hover:border-[#e96a32]/50 hover:bg-[#fff8e7] hover:text-[#c94f1c]"
+                            }`}
+                            disabled={favoriteActionId !== null}
+                            onClick={() => void toggleFavorite(item.id)}
+                            type="button"
+                          >
+                            {favoriteActionId === item.id ? (
+                              <LoaderCircle
+                                aria-hidden="true"
+                                className="size-5 animate-spin"
+                              />
+                            ) : (
+                              <Heart
+                                aria-hidden="true"
+                                className={`size-5 ${
+                                  favoriteIds.has(item.id) ? "fill-current" : ""
+                                }`}
+                              />
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </motion.article>
                 ))}
