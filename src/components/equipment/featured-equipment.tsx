@@ -228,7 +228,7 @@ export function FeaturedEquipment() {
           </motion.p>
         )}
         {displayedItems.length > 0 && (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
+          <div className="grid grid-cols-1 gap-x-3 gap-y-7 sm:flex sm:flex-wrap sm:gap-5 xl:flex-nowrap xl:items-stretch">
             {equipmentRows.map((row, rowIndex) => (
               <div
                 className="contents sm:flex sm:basis-full sm:gap-5 xl:contents"
@@ -239,7 +239,7 @@ export function FeaturedEquipment() {
 
                   return (
                     <motion.article
-                      className={`group relative h-[330px] min-w-0 flex-[1_1_0%] rounded-2xl bg-[linear-gradient(115deg,#ffd277_0%,#e96a32_55%,#08162d_100%)] p-[2px] shadow-[0_4px_14px_rgba(8,22,45,0.12)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(233,106,50,0.16)] sm:h-[360px] xl:h-[380px] ${
+                      className={`group relative h-auto min-h-[390px] min-w-0 flex-[1_1_0%] rounded-2xl bg-[linear-gradient(115deg,#ffd277_0%,#e96a32_55%,#08162d_100%)] p-[2px] shadow-[0_4px_14px_rgba(8,22,45,0.12)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(233,106,50,0.16)] sm:h-[360px] sm:min-h-0 xl:h-[380px] ${
                         row.length === 1
                           ? "sm:max-w-[calc(33.333%_-_0.833rem)]"
                           : ""
@@ -300,8 +300,8 @@ export function FeaturedEquipment() {
                       viewport={{ once: true, amount: 0.15 }}
                       whileInView={{ opacity: 1, y: 0 }}
                     >
-                      <div className="h-full overflow-hidden rounded-[14px] bg-white">
-                        <div className="relative h-36 overflow-hidden sm:h-44 xl:h-52">
+                      <div className="flex h-full flex-col overflow-hidden rounded-[14px] bg-white">
+                        <div className="relative h-48 shrink-0 overflow-hidden sm:h-44 xl:h-52">
                           <Image
                             alt={item.name}
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -313,18 +313,18 @@ export function FeaturedEquipment() {
                             {item.category}
                           </span>
                         </div>
-                        <div className="p-3 xl:p-2">
-                          <h3 className="break-words text-base font-bold leading-tight text-slate-950 transition-colors duration-500 group-hover:text-[#c94f1c] xl:text-sm">
+                        <div className="flex flex-1 flex-col p-3 xl:p-2">
+                          <h3 className="line-clamp-2 min-h-10 break-words text-base font-bold leading-tight text-slate-950 transition-colors duration-500 group-hover:text-[#c94f1c] xl:text-sm">
                             {item.name}
                           </h3>
-                          <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                          <p className="mt-2 flex min-h-4 items-center gap-1.5 text-xs text-slate-500">
                             <MapPin
                               aria-hidden="true"
                               className="size-3 shrink-0 text-[#e96a32]"
                             />
-                            {item.location}
+                            <span className="truncate">{item.location}</span>
                           </p>
-                          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 xl:mt-3 xl:items-start">
+                          <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
                             <p className="text-sm text-slate-500">
                               <span className="text-base font-extrabold text-slate-950">
                                 ৳{item.dailyRate.toLocaleString()}
