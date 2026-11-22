@@ -32,9 +32,13 @@ export function RecentlyAdded() {
 
     async function loadItems() {
       try {
-        const response = await fetchWithRetry(`${apiBaseUrl}/api/equipment/featured`, {
-          signal: controller.signal,
-        });
+        const response = await fetchWithRetry(
+          `${apiBaseUrl}/api/equipment/featured`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        );
         const payload: unknown = await response.json();
 
         if (!response.ok) {
@@ -227,12 +231,22 @@ export function RecentlyAdded() {
                       <MapPin aria-hidden="true" className="size-3 text-[#c94f1c]" />
                       {item.location}
                     </p>
-                    <p className="mt-3 text-sm font-black text-[#08162d]">
-                      ৳{item.dailyRate.toLocaleString()}
-                      <span className="ml-1 text-xs font-normal text-slate-500">
-                        / day
-                      </span>
-                    </p>
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <p className="text-sm font-black text-[#08162d]">
+                        ৳{item.dailyRate.toLocaleString()}
+                        <span className="ml-1 text-xs font-normal text-slate-500">
+                          / day
+                        </span>
+                      </p>
+                      <Link
+                        aria-label={`View ${item.name} details`}
+                        className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-[#c94f1c] transition-colors hover:text-[#a83f15] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c94f1c]"
+                        href={`/equipment/${encodeURIComponent(item.id)}`}
+                      >
+                        View details
+                        <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </motion.article>
               ))}
