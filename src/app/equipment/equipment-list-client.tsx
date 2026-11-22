@@ -635,6 +635,7 @@ export default function EquipmentListClient() {
         className="fixed inset-x-0 top-0 z-[60] h-1 origin-left bg-gradient-to-r from-[#75d6c3] via-[#ffc45b] to-[#e96a32]"
         style={{ scaleX: reduceMotion ? 0 : scrollYProgress }}
       />
+      <Navbar />
       <section className="relative isolate overflow-hidden bg-[#08162d] text-white">
         <div
           aria-hidden="true"
@@ -657,7 +658,6 @@ export default function EquipmentListClient() {
           <span className="absolute left-7 top-16 size-3 rounded-full bg-[#75d6c3] shadow-[0_0_22px_#75d6c3]" />
           <span className="absolute bottom-14 right-9 size-2 rounded-full bg-[#ffc45b] shadow-[0_0_18px_#ffc45b]" />
         </motion.div>
-        <Navbar />
         <div className="relative mx-auto max-w-7xl px-4 pb-36 pt-32 sm:px-6 sm:pb-40 lg:px-8">
           <motion.div
             animate={{ opacity: 1, y: 0 }}
