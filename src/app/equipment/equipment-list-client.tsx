@@ -39,7 +39,6 @@ import {
 } from "@/data/featured-equipment";
 
 type RentalType = "daily" | "weekly" | "monthly";
-type AvailabilityFilter = "all" | "available" | "unavailable";
 type SortOption =
   | "recently-added"
   | "price-low-to-high"
@@ -78,10 +77,6 @@ function adjustPriceByOne(value: string, adjustment: -1 | 1): string {
   return Number.isFinite(price)
     ? String(Math.max(0, price + adjustment))
     : value;
-}
-
-function isAvailabilityFilter(value: string): value is AvailabilityFilter {
-  return value === "all" || value === "available" || value === "unavailable";
 }
 
 function isSortOption(value: string): value is SortOption {
@@ -411,8 +406,6 @@ export default function EquipmentListClient() {
   const [rentalType, setRentalType] = useState<RentalType>("daily");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [availability, setAvailability] =
-    useState<AvailabilityFilter>("all");
   const [sort, setSort] = useState<SortOption>("recently-added");
   const [page, setPage] = useState(1);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(
@@ -439,7 +432,7 @@ export default function EquipmentListClient() {
     const timeout = window.setTimeout(async () => {
       const params = new URLSearchParams({
         rentalType,
-        availability,
+        availability: "available",
         sort,
         page: String(page),
         pageSize: "12",
@@ -509,7 +502,6 @@ export default function EquipmentListClient() {
     rentalType,
     minPrice,
     maxPrice,
-    availability,
     sort,
     page,
   ]);
@@ -861,27 +853,6 @@ export default function EquipmentListClient() {
             </fieldset>
 
             <AnimatedDropdown
-              id="availability-filter"
-              label="Availability"
-              onChange={(value) => {
-                if (isAvailabilityFilter(value)) {
-                  setAvailability(value);
-                  setPage(1);
-                }
-              }}
-              onOpenChange={(open) =>
-                setOpenFilterDropdown(open ? "availability-filter" : null)
-              }
-              open={openFilterDropdown === "availability-filter"}
-              options={[
-                { label: "Any availability", value: "all" },
-                { label: "Available today", value: "available" },
-                { label: "Unavailable today", value: "unavailable" },
-              ]}
-              value={availability}
-            />
-
-            <AnimatedDropdown
               id="sort-filter"
               label="Sort by"
               onChange={(value) => {
@@ -916,7 +887,12 @@ export default function EquipmentListClient() {
                 : `${state.total} ${state.total === 1 ? "equipment item" : "equipment items"}`}
             </p>
             <p className="text-xs text-slate-500">
-              Showing rental prices per {rentalType === "daily" ? "day" : rentalType === "weekly" ? "week" : "month"}
+              Only equipment available today is shown · Rental prices per{" "}
+              {rentalType === "daily"
+                ? "day"
+                : rentalType === "weekly"
+                  ? "week"
+                  : "month"}
             </p>
           </motion.div>
 
@@ -1011,16 +987,8 @@ export default function EquipmentListClient() {
                       <span className="absolute left-4 top-4 max-w-[65%] truncate rounded-full bg-[#08162d]/85 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
                         {item.category}
                       </span>
-                      <span
-                        className={`absolute right-4 top-4 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm backdrop-blur ${
-                          item.availabilityStatus === "available"
-                            ? "bg-[#e6f8f2]/95 text-[#087e61]"
-                            : "bg-slate-900/80 text-white"
-                        }`}
-                      >
-                        {item.availabilityStatus === "available"
-                          ? "Available today"
-                          : "Unavailable"}
+                      <span className="absolute right-4 top-4 rounded-full bg-[#e6f8f2]/95 px-3 py-1.5 text-xs font-bold text-[#087e61] shadow-sm backdrop-blur">
+                        Available today
                       </span>
                     </div>
 

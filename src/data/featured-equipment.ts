@@ -18,6 +18,22 @@ const rentalPeriodDays: Record<RentalType, number> = {
   monthly: 30,
 };
 
+export function getRentalEndDate(startDate: string, rentalType: RentalType) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+    return "";
+  }
+
+  const endDate = new Date(`${startDate}T00:00:00.000Z`);
+  if (
+    Number.isNaN(endDate.getTime()) ||
+    endDate.toISOString().slice(0, 10) !== startDate
+  ) {
+    return "";
+  }
+  endDate.setUTCDate(endDate.getUTCDate() + rentalPeriodDays[rentalType]);
+  return endDate.toISOString().slice(0, 10);
+}
+
 export function getRentalUnitRateMinor(
   equipment: Pick<
     FeaturedEquipment,

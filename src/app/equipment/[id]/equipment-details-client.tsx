@@ -19,6 +19,7 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import {
+  getRentalEndDate,
   getRentalUnitRateMinor,
   isFeaturedEquipment,
   type FeaturedEquipment as FeaturedEquipmentItem,
@@ -326,12 +327,11 @@ export default function EquipmentDetailsClient({ id }: { id: string }) {
 
   function openBookingModal(rentalType: RentalType = "daily") {
     const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 1);
+    const startDateValue = dateInputValue(startDate);
     setBookingRentalType(rentalType);
     setBookingDates({
-      startDate: dateInputValue(startDate),
-      endDate: dateInputValue(endDate),
+      startDate: startDateValue,
+      endDate: getRentalEndDate(startDateValue, rentalType),
     });
     setIsBookingModalOpen(true);
   }

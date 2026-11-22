@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import {
+  getRentalEndDate,
   getRentalUnitRateMinor,
   type FeaturedEquipment,
   type RentalType,
@@ -279,7 +280,11 @@ export function BookingModal({
             <input
               className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               min={initialStartDate}
-              onChange={(event) => setStartDate(event.target.value)}
+              onChange={(event) => {
+                const nextStartDate = event.target.value;
+                setStartDate(nextStartDate);
+                setEndDate(getRentalEndDate(nextStartDate, rentalType));
+              }}
               required
               type="date"
               value={startDate}
@@ -302,9 +307,10 @@ export function BookingModal({
               className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-base font-normal outline-none focus:border-[#087e78] focus:ring-4 focus:ring-[#087e78]/10 sm:text-sm"
               onChange={(event) => {
                 const value = event.target.value;
-                setRentalType(
-                  value === "weekly" || value === "monthly" ? value : "daily",
-                );
+                const nextRentalType =
+                  value === "weekly" || value === "monthly" ? value : "daily";
+                setRentalType(nextRentalType);
+                setEndDate(getRentalEndDate(startDate, nextRentalType));
               }}
               value={rentalType}
             >
@@ -312,6 +318,10 @@ export function BookingModal({
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Selecting a rental type sets the return date to that period;
+              you can adjust it afterward.
+            </span>
           </label>
           <label className="text-sm font-semibold text-slate-700">
             Required quantity
