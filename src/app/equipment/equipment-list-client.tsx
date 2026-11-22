@@ -363,6 +363,7 @@ export default function EquipmentListClient() {
   const { scrollYProgress } = useScroll();
   const heroArtY = useTransform(scrollYProgress, [0, 0.35], [0, 96]);
   const heroArtRotate = useTransform(scrollYProgress, [0, 0.35], [0, 18]);
+  const equipmentGridRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [rentalType, setRentalType] = useState<RentalType>("daily");
@@ -466,6 +467,14 @@ export default function EquipmentListClient() {
   ]);
 
   const pageCount = Math.max(1, Math.ceil(state.total / state.pageSize));
+
+  function changePage(nextPage: number) {
+    setPage(nextPage);
+    equipmentGridRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f5f0] text-[#122035]">
@@ -791,7 +800,8 @@ export default function EquipmentListClient() {
           {state.items.length > 0 && (
             <div
               aria-busy={state.status === "loading"}
-              className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+              className="mt-5 grid scroll-mt-24 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+              ref={equipmentGridRef}
             >
               <AnimatePresence mode="popLayout">
                 {state.items.map((item, index) => (
@@ -900,7 +910,7 @@ export default function EquipmentListClient() {
               <button
                 className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#122035] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={page <= 1}
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                onClick={() => changePage(Math.max(1, page - 1))}
                 type="button"
               >
                 <ChevronLeft aria-hidden="true" className="size-4" />
@@ -912,9 +922,7 @@ export default function EquipmentListClient() {
               <button
                 className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-[#122035] transition hover:border-[#e96a32] disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={page >= pageCount}
-                onClick={() =>
-                  setPage((current) => Math.min(pageCount, current + 1))
-                }
+                onClick={() => changePage(Math.min(pageCount, page + 1))}
                 type="button"
               >
                 Next
