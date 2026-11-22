@@ -19,6 +19,7 @@ import { useDashboard } from "../dashboard-context";
 
 type CustomerBooking = {
   id: string;
+  equipmentId?: string | null;
   equipmentName: string;
   startDate: string;
   endDate: string;
@@ -41,6 +42,9 @@ function isCustomerBooking(value: unknown): value is CustomerBooking {
     value !== null &&
     "id" in value &&
     typeof value.id === "string" &&
+    (!("equipmentId" in value) ||
+      typeof value.equipmentId === "string" ||
+      value.equipmentId === null) &&
     "equipmentName" in value &&
     typeof value.equipmentName === "string" &&
     "startDate" in value &&
@@ -368,7 +372,17 @@ export default function MyRentalsPage() {
                       className="transition-colors hover:bg-slate-50"
                     >
                       <td className="px-4 py-4 font-bold text-[#08162d]">
-                        {booking.equipmentName}
+                        {booking.equipmentId ? (
+                          <Link
+                            aria-label={`View details for ${booking.equipmentName}`}
+                            className="underline decoration-slate-300 underline-offset-4 transition-colors hover:text-[#c94f1c] hover:decoration-[#c94f1c] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e96a32]"
+                            href={`/equipment/${encodeURIComponent(booking.equipmentId)}`}
+                          >
+                            {booking.equipmentName}
+                          </Link>
+                        ) : (
+                          booking.equipmentName
+                        )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-slate-600">
                         {formatDate(booking.startDate)}
