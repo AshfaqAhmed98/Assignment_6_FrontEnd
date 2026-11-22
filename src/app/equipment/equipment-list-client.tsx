@@ -969,7 +969,7 @@ export default function EquipmentListClient() {
           {state.items.length > 0 && (
             <div
               aria-busy={state.status === "loading"}
-              className="mt-5 grid scroll-mt-24 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+              className="mt-5 grid auto-rows-fr scroll-mt-24 gap-5 sm:grid-cols-2 lg:grid-cols-3"
               ref={equipmentGridRef}
             >
               <AnimatePresence mode="popLayout">
@@ -1024,15 +1024,15 @@ export default function EquipmentListClient() {
                     </div>
 
                     <div className="flex flex-1 flex-col p-5">
-                      <h2 className="line-clamp-2 text-xl font-black leading-snug text-[#08162d]">
+                      <h2 className="min-h-14 line-clamp-2 text-xl font-black leading-snug text-[#08162d]">
                         {item.name}
                       </h2>
-                      <p className="mt-3 flex items-center gap-2 text-sm text-slate-500">
+                      <p className="mt-3 flex min-h-5 items-center gap-2 text-sm text-slate-500">
                         <MapPin
                           aria-hidden="true"
                           className="size-4 shrink-0 text-[#e96a32]"
                         />
-                        {item.location}
+                        <span className="truncate">{item.location}</span>
                       </p>
                       <div className="mt-5 flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -1054,9 +1054,9 @@ export default function EquipmentListClient() {
                           <span className="mt-1 block">available today</span>
                         </p>
                       </div>
-                      <div className="mt-5 flex items-center gap-2">
+                      <div className="mt-auto flex items-center gap-2 pt-5">
                         <Link
-                          className="gearrent-primary-action group min-w-0 flex-1"
+                          className="gearrent-primary-action group min-w-0 flex-1 whitespace-nowrap"
                           href={`/equipment/${encodeURIComponent(item.id)}`}
                         >
                           View Details
